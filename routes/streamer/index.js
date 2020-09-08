@@ -125,6 +125,6 @@ router.delete("/:channel", (req, res) => {
     });
 });
 
-router.ws("/");
+router.ws("/", (req, res) => {});
 
 module.exports = router;

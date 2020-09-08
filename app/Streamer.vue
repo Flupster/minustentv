@@ -158,6 +158,9 @@ export default {
   },
   methods: {
     formatProgress(progress) {
+      if (!progress.percent) {
+        return (this.progress = progress);
+      }
       const time = progress.timemark;
       const ms = parseInt(time.substr(-2)) / 100;
       const times = time

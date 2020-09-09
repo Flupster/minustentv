@@ -143,6 +143,7 @@
 <script>
 import axios from "axios";
 import toastr from "toastr";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 export default {
   data() {
@@ -277,7 +278,7 @@ export default {
         this.$router.push("login");
       });
 
-    this.ws = new WebSocket(process.env.WSS_URL + "api/streamer");
+    this.ws = new ReconnectingWebSocket(process.env.WSS_URL + "api/streamer");
     this.ws.onmessage = this.onMessage;
   },
 };

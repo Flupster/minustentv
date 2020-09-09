@@ -54,14 +54,25 @@ video {
 import toastr from "toastr";
 import videojs from "video.js";
 import "videojs-flvjs-es6";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 export default {
   data() {
     return {
+      noInteract: false,
       channel: "mtv",
-      wss: null,
+      meta: {},
+      ws: null,
       player: null,
     };
+  },
+  watch: {
+    meta: {
+      handler(meta, oldMeta) {
+        //on meta event
+      },
+      deep: true,
+    },
   },
   methods: {
     play(src) {
@@ -76,6 +87,8 @@ export default {
 
       this.player.play().catch((e) => {
         if (e.message.includes("user didn't interact with the document")) {
+          this.noInteract = true;
+          toastr.info("Click the video to unmute!");
           videojs.log("Attempting to mute and play due to interact error");
           this.player.muted(true);
           this.player.play();
@@ -99,8 +112,14 @@ export default {
   },
   mounted() {
     //Websocket for events
-    this.wss = new WebSocket(process.env.WSS_URL + this.channel);
-    this.wss.onmessage = this.onMessage;
+    this.ws = new ReconnectingWebSocket(process.env.WSS_URL + this.channel);
+    this.ws.onmessage = this.onMessage;
+
+    this.$on("streamInfo", (data) => {
+      if (this.channel === data.channel) {
+        this.meta = data.meta;
+      }
+    });
 
     // On streamStart play stream
     this.$on("streamStart", (data) => {
@@ -150,6 +169,14 @@ export default {
     this.player.on("play", () => {
       this.seekToLive();
       this.player.volume(localStorage.getItem("player-volume") ?? 1);
+    });
+
+    // If player is muted due to non interaction error unmute on click
+    this.player.on("click", () => {
+      if (this.noInteract) {
+        this.noInteract = false;
+        this.player.muted(false);
+      }
     });
 
     // Play when ready

@@ -3,11 +3,14 @@ const path = require("path");
 const nms = require("../helpers/nms");
 
 router.ws("/*", (ws, req) => {
+  // Send a ping every 10s
+  setInterval(() => ws.event("ping", +new Date()), 10000);
+
   const events = ["streamStart", "streamInfo", "streamEnd"];
 
   events.forEach(event => {
     function eventHandler(data) {
-      ws.json({ event, data });
+      ws.event(event, data);
     }
 
     nms.on(event, eventHandler);

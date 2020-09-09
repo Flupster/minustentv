@@ -1,10 +1,14 @@
 const expressWs = require("express-ws");
 
-//Prototype a WebSocket function to send JSON data
+// function to send JSON data to WebSocket
 function wsjson(data, options, cb) {
   if (this.readyState === 1) {
     this.send(JSON.stringify(data), options, cb);
   }
+}
+// function to send JSON Event data to WebSocket
+function wsevent(event, data, options, cb) {
+  this.json({ event, data }, options, cb);
 }
 
 class Wss {
@@ -20,7 +24,10 @@ class Wss {
 
     this.wss.on("connection", (ws, req) => {
       ws.path = req.baseUrl;
+
       ws.json = wsjson;
+      ws.event = wsevent;
+
       this.clients.push(ws);
       ws.on("close", () => {
         this.clients = this.clients.filter(ws => ws.readyState === 1);

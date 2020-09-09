@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loaded" @paste="onPaste" class="container">
+  <div @paste="onPaste" class="container">
     <div v-bind:class="{ 'd-none': !nav }" id="sidebar" class="sidebar">
       <a href="javascript:void(0)" class="closebtn" @click="toggleNav">x</a>
       <div class="container-fluid">
@@ -154,7 +154,6 @@ export default {
       progress: null,
       startTime: "00:00:00",
       nav: false,
-      loaded: false,
     };
   },
   methods: {
@@ -264,19 +263,11 @@ export default {
     },
   },
   mounted() {
-    axios
-      .get("/api/user")
-      .then((r) => {
-        if (!r.data.verified) {
-          this.$router.push("unverified");
-        } else {
-          this.loaded = true;
-        }
-      })
-      .catch((e) => {
-        toastr.error("You need to be logged in");
-        this.$router.push("login");
-      });
+    if (!this.$store.state.user) {
+      this.$router.push({ name: "Login" });
+    } else if (!this.$store.state.user.verified) {
+      this.$router.push({ name: "Player" });
+    }
 
     this.ws = new ReconnectingWebSocket(process.env.WSS_URL + "api/streamer");
     this.ws.onmessage = this.onMessage;

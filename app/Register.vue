@@ -102,5 +102,10 @@ export default {
         .catch((e) => toastr.error(e.response.data.error));
     },
   },
+  created() {
+    if (this.$store.state.user) {
+      this.$router.push({ name: "Streamer" });
+    }
+  },
 };
 </script>

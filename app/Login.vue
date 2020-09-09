@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <form v-if="logincheck" class="form-signin" @submit.prevent="login">
+    <form class="form-signin" @submit.prevent="login">
       <input
         type="email"
         name="email"
@@ -63,21 +63,6 @@ import axios from "axios";
 import toastr from "toastr";
 
 export default {
-  data() {
-    return {
-      logincheck: false,
-    };
-  },
-  mounted() {
-    axios
-      .get("/api/user")
-      .then((r) => {
-        this.$router.push("streamer");
-      })
-      .catch((e) => {
-        this.logincheck = true;
-      });
-  },
   methods: {
     login(submit) {
       axios
@@ -87,10 +72,21 @@ export default {
         })
         .then((r) => {
           toastr.success(r.data.message);
-          this.$router.push("streamer");
+          this.$store.commit("loggedIn");
+          this.$store.watch(
+            (state) => state.user,
+            (user) => {
+              this.$router.push({ name: "Streamer" });
+            }
+          );
         })
         .catch((e) => toastr.error(e.response.data.error));
     },
+  },
+  created() {
+    if (this.$store.state.user) {
+      this.$router.push({ name: "Streamer" });
+    }
   },
 };
 </script>

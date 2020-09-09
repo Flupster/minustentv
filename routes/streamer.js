@@ -2,13 +2,13 @@ const rrdir = require("rrdir");
 const Fuse = require("fuse.js");
 const axios = require("axios");
 const path = require("path");
-const StreamModel = require("../../models/Stream");
+const StreamModel = require("../models/Stream");
 const YoutubeDlWrap = require("youtube-dl-wrap");
-const Stream = require("../../helpers/stream");
-const Wss = require("../../helpers/wss");
+const Stream = require("../helpers/stream");
+const Wss = require("../helpers/wss");
 const Busboy = require("busboy");
 const router = require("express").Router();
-const verified = require("../../middleware/verified");
+const verified = require("../middleware/verified");
 
 //attach verified middleware for verified user access
 router.use(verified);

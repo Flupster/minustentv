@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const User = require("../../models/User");
-const auth = require("../../middleware/auth");
+const User = require("../models/User");
+const auth = require("../middleware/auth");
 
 // /api/user get the current user
 router.get("/", auth, async (req, res) => {

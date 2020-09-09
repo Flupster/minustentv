@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const nms = require("../../helpers/nms");
+const nms = require("../helpers/nms");
 
 // @route /api/nms/*
 router.post("/*", (req, res) => {

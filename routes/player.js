@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const path = require("path");
-const nms = require("../../helpers/nms");
+const nms = require("../helpers/nms");
 
 router.ws("/*", (ws, req) => {
   const events = ["streamStart", "streamInfo", "streamEnd"];

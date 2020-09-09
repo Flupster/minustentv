@@ -86,15 +86,11 @@ export default {
       }
 
       this.player.play().catch((e) => {
-        if (e.message.includes("user didn't interact with the document")) {
-          this.noInteract = true;
-          toastr.info("Click the video to unmute!");
-          videojs.log("Attempting to mute and play due to interact error");
-          this.player.muted(true);
-          this.player.play();
-        } else {
-          videojs.log(e);
-        }
+        this.noInteract = true;
+        toastr.info("Click the video to unmute!");
+        videojs.log("Attempting to mute and play due to interact error");
+        this.player.muted(true);
+        this.player.play();
       });
     },
     onMessage(message) {

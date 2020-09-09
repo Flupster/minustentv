@@ -243,7 +243,6 @@ export default {
     },
     streamFile(file) {
       this.search = "";
-      this.results = [];
       axios
         .post("/api/streamer/stream/file", { file, start: this.startTime })
         .then((r) => {

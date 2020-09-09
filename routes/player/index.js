@@ -6,9 +6,12 @@ router.ws("/*", (ws, req) => {
   const events = ["streamStart", "streamInfo", "streamEnd"];
 
   events.forEach(event => {
-    const listener = data => ws.json({ event, data });
-    nms.on(event, listener);
-    ws.on("close", () => nms.off(event, listener));
+    function eventHandler(data) {
+      ws.json({ event, data });
+    }
+
+    nms.on(event, eventHandler);
+    ws.on("close", () => nms.off(event, eventHandler));
   });
 });
 

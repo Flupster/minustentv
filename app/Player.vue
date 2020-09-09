@@ -5,8 +5,12 @@
 </template>
 
 <style>
+.video-js {
+  font-size: 15px !important;
+}
+
 .vjs-control-bar {
-  background-color: rgb(0 0 0 / 70%) !important;
+  background-color: rgb(0 0 0 / 50%) !important;
 }
 
 .video-js.vjs-playing .vjs-tech {

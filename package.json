@@ -27,7 +27,7 @@
     "fuse.js": "^6.4.1",
     "helmet": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.10.3",
+    "mongoose": "^5.10.4",
     "morgan": "^1.10.0",
     "rrdir": "^8.1.1",
     "ws": "^7.3.1",
@@ -49,9 +49,9 @@
     "video.js": "^7.8.4",
     "videojs-flvjs-es6": "^1.0.1",
     "vue": "^2.6.12",
-    "vue-cookies": "^1.7.4",
     "vue-hot-reload-api": "^2.3.4",
     "vue-router": "^3.4.3",
-    "vue-template-compiler": "^2.6.12"
+    "vue-template-compiler": "^2.6.12",
+    "vuex": "^3.5.1"
   }
 }

@@ -5,6 +5,10 @@
 </template>
 
 <style>
+.vjs-control-amplifier {
+  font-size: 1.4em !important;
+}
+
 .vjs-control-viewers {
   font-size: 1.3em !important;
 }
@@ -19,6 +23,22 @@
 
 .video-js.vjs-playing .vjs-tech {
   pointer-events: none;
+}
+
+.video-js .vjs-play-control {
+  display: none;
+}
+
+.video-js .vjs-progress-control {
+  opacity: 0%;
+}
+
+.video-js .vjs-live-control {
+  opacity: 0%;
+}
+
+.video-js .vjs-remaining-time {
+  display: none;
 }
 </style>
 
@@ -61,6 +81,7 @@ import videojs from "video.js";
 import "videojs-flvjs-es6";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import ViewerButton from "./lib/ViewerButton";
+import AmplifierButton from "./lib/AmplierButton";
 
 export default {
   data() {
@@ -152,22 +173,9 @@ export default {
       },
     });
 
-    // Handle double click fullscreen
-    this.player.on("dblclick", () => {
-      if (this.player.isFullscreen()) {
-        this.player.exitFullscreen();
-      } else {
-        this.player.requestFullscreen();
-      }
-    });
-
-    // Hide and disable control bar elements
-    this.player.controlBar.progressControl.disable();
-    this.player.controlBar.progressControl.el().style.opacity = "0%";
-    this.player.controlBar.remainingTimeDisplay.hide();
-
-    // Add ViewerButton to controlbar
+    // Add ViewerButton and Amplifier to controlbar
     this.player.controlBar.addChild(this.viewerButton, {}, 15);
+    this.player.controlBar.addChild(new AmplifierButton(this.player), {}, 2);
 
     // Remember volume
     this.player.on("volumechange", (x) => {
@@ -182,7 +190,16 @@ export default {
       this.player.volume(localStorage.getItem("player-volume") ?? 1);
     });
 
-    // If player is muted due to non interaction error unmute on click
+    // Fullscreen on double click
+    this.player.on("dblclick", (event) => {
+      if (event.target.nodeName === "DIV") {
+        this.player.isFullscreen()
+          ? this.player.exitFullscreen()
+          : this.player.requestFullscreen();
+      }
+    });
+
+    //If player is muted due to non interaction error unmute on click
     this.player.on("click", () => {
       if (this.noInteract) {
         this.noInteract = false;

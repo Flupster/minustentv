@@ -35,6 +35,7 @@
     "youtube-dl-wrap": "^1.1.2"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.14.0",
     "@vue/component-compiler-utils": "^3.2.0",
     "axios": "^0.20.0",
     "cssnano": "^4.1.10",

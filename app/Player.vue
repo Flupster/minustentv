@@ -5,6 +5,10 @@
 </template>
 
 <style>
+.vjs-control-viewers {
+  font-size: 1.3em !important;
+}
+
 .video-js {
   font-size: 15px !important;
 }
@@ -20,6 +24,7 @@
 
 <style scoped>
 @import "video.js/dist/video-js.css";
+@import "@fortawesome/fontawesome-free/css/all.css";
 @import "toastr";
 
 body {
@@ -55,6 +60,7 @@ import toastr from "toastr";
 import videojs from "video.js";
 import "videojs-flvjs-es6";
 import ReconnectingWebSocket from "reconnecting-websocket";
+import ViewerButton from "./lib/ViewerButton";
 
 export default {
   data() {
@@ -62,6 +68,7 @@ export default {
       noInteract: false,
       channel: "mtv",
       meta: {},
+      viewerButton: new ViewerButton(),
       ws: null,
       player: null,
     };
@@ -69,7 +76,7 @@ export default {
   watch: {
     meta: {
       handler(meta, oldMeta) {
-        //on meta event
+        this.viewerButton.updateViewers(meta.viewers);
       },
       deep: true,
     },
@@ -153,6 +160,14 @@ export default {
         this.player.requestFullscreen();
       }
     });
+
+    // Hide and disable control bar elements
+    this.player.controlBar.progressControl.disable();
+    this.player.controlBar.progressControl.el().style.opacity = "0%";
+    this.player.controlBar.remainingTimeDisplay.hide();
+
+    // Add ViewerButton to controlbar
+    this.player.controlBar.addChild(this.viewerButton, {}, 15);
 
     // Remember volume
     this.player.on("volumechange", (x) => {

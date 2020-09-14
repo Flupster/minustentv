@@ -1,4 +1,5 @@
 const Emitter = require("events");
+const Event = require("../models/Event");
 const axios = require("axios");
 
 class Nms extends Emitter {
@@ -7,26 +8,39 @@ class Nms extends Emitter {
     this.channels = {};
   }
 
-  onEvent(event, data) {
-    switch (event) {
+  onEvent(eventType, body) {
+    const event = new Event({
+      eventType,
+      eventId: body[0],
+    });
+
+    if (body.length === 3) {
+      event.eventData = { streamPath: body[1], ...body[2] };
+    } else {
+      event.eventData = { ...body[1] };
+    }
+
+    event.save();
+
+    switch (eventType) {
       case "postConnect":
-        if (data[1].streamPath) {
-          this.getStreamInfo(data[1].streamPath.split("/").pop());
+        if (body[1].streamPath) {
+          this.getStreamInfo(body[1].streamPath.split("/").pop());
         }
         break;
       case "doneConnect":
-        if (data[1].streamPath) {
-          this.getStreamInfo(data[1].streamPath.split("/").pop());
+        if (body[1].streamPath) {
+          this.getStreamInfo(body[1].streamPath.split("/").pop());
         }
         break;
       case "postPublish":
         this.emit("streamStart", {
-          channel: data[1].split("/").pop(),
+          channel: body[1].split("/").pop(),
         });
         break;
       case "donePublish":
         this.emit("streamEnd", {
-          channel: data[1].split("/").pop(),
+          channel: body[1].split("/").pop(),
         });
         break;
     }

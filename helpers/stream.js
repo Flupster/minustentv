@@ -6,7 +6,6 @@ class Stream extends Ffmpeg {
     this.native()
       .videoCodec("libx264")
       .audioCodec("aac")
-      .videoBitrate(2000)
       .audioChannels(2)
       .audioFrequency(44100)
       .flvmeta()
@@ -15,10 +14,7 @@ class Stream extends Ffmpeg {
   }
 
   addMap(type, index) {
-    if (index > 0) {
-      this.outputOption(`-map 0:${type}:${index}`);
-    }
-
+    this.outputOption(`-map 0:${type}:${index}`);
     return this;
   }
 

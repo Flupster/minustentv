@@ -82,6 +82,7 @@ router.post("/stream/url", (req, res) => {
 
 // Helper function to start streams
 function StartStream(req, res, input) {
+  const resolution = req.body.resolution ?? 720;
   const stream = new Stream(input)
     .on("progress", progress => {
       Wss.sendJsonPath("/api/streamer", { event: "progress", data: progress });
@@ -107,7 +108,11 @@ function StartStream(req, res, input) {
     })
     .addMap("v", req.body.video)
     .addMap("a", req.body.audio)
-    .size("?x" + req.body.resolution ?? 720);
+    .size("?x" + resolution)
+    .videoBitrate(resolution > 720 ? 2000 : resolution <= 480 ? 1000 : 1500)
+    .on("stderr", data => {
+      Wss.sendJsonPath("/api/streamer", { event: "log", data });
+    });
 
   if (req.body.start && req.body.start !== "00:00:00") {
     stream.setStartTime(req.body.start);

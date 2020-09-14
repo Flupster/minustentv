@@ -247,6 +247,10 @@ export default {
           console.log("New stream", json);
           break;
 
+        case "log":
+          console.log(json.data);
+          break;
+
         default:
           console.warn("Unknown event", json);
           break;

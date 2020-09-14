@@ -167,7 +167,7 @@ export default {
             audio: [],
             subtitle: [{ value: null, text: "Disabled" }],
             resolution: [
-              { value: null, text: "480p" },
+              { value: 480, text: "480p" },
               { value: 720, text: "720p" },
             ],
           };

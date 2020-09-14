@@ -9,10 +9,32 @@ class Stream extends Ffmpeg {
       .videoBitrate(2000)
       .audioChannels(2)
       .audioFrequency(44100)
-      .size("?x720")
       .flvmeta()
       .format("flv")
       .output(process.env.NMS_RTMP_URL);
+  }
+
+  addMap(type, index) {
+    if (index > 0) {
+      this.outputOption(`-map 0:${type}:${index}`);
+    }
+
+    return this;
+  }
+
+  burnSubs(input, index, fontsize = 24) {
+    if (index > 0) {
+      input = input + ":si=" + index;
+    }
+
+    this.videoFilters([
+      {
+        filter: "subtitles",
+        options: [input, `force_style='Fontsize=${fontsize}'`],
+      },
+    ]);
+
+    return this;
   }
 }
 

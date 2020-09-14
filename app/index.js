@@ -1,9 +1,11 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import VueRouter from "vue-router";
+import BootstrapVue from "bootstrap-vue";
 
 Vue.use(Vuex);
 Vue.use(VueRouter);
+Vue.use(BootstrapVue);
 
 import App from "./App.vue";
 import Streamer from "./Streamer.vue";

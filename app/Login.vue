@@ -27,9 +27,6 @@
 </template>
 
 <style scoped>
-@import "bootswatch/dist/slate/bootstrap.min.css";
-@import "toastr";
-
 .form-signin {
   max-width: 40vw;
   padding-top: 40vh;

@@ -42,10 +42,9 @@
 }
 </style>
 
-<style scoped>
-@import "video.js/dist/video-js.css";
+<style lang="scss" scoped>
 @import "@fortawesome/fontawesome-free/css/all.css";
-@import "toastr";
+@import "video.js/dist/video-js.css";
 
 body {
   overflow: hidden;

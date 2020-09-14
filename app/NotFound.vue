@@ -10,7 +10,6 @@
 </template>
 
 <style scoped>
-@import "bootswatch/dist/slate/bootstrap.min.css";
 img {
   width: auto;
   height: 100%;

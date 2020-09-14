@@ -2,6 +2,7 @@ const rrdir = require("rrdir");
 const Fuse = require("fuse.js");
 const axios = require("axios");
 const path = require("path");
+const Ffmpeg = require("fluent-ffmpeg");
 const StreamModel = require("../models/Stream");
 const YoutubeDlWrap = require("youtube-dl-wrap");
 const Stream = require("../helpers/stream");
@@ -103,10 +104,17 @@ function StartStream(req, res, input) {
       if (!res.headersSent) {
         res.status(200).json({ command, pid });
       }
-    });
+    })
+    .addMap("v", req.body.video)
+    .addMap("a", req.body.audio)
+    .size("?x" + req.body.resolution ?? 720);
 
   if (req.body.start && req.body.start !== "00:00:00") {
     stream.setStartTime(req.body.start);
+  }
+
+  if (req.body.subtitle) {
+    stream.burnSubs(input, req.body.subtitle);
   }
 
   stream.run();
@@ -123,6 +131,14 @@ router.delete("/:channel", (req, res) => {
     .catch(e => {
       res.status(500).json({ error: "Could not kill stream: " + e.message });
     });
+});
+
+//Media Info
+router.get("/mediainfo", (req, res) => {
+  Ffmpeg.ffprobe(req.query.file, (e, meta) => {
+    if (e) return res.status(500).json({ error: e });
+    res.status(200).json(meta);
+  });
 });
 
 router.ws("/", (req, res) => {});

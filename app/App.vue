@@ -2,6 +2,12 @@
   <router-view />
 </template>
 
-<style>
-@import "toastr/toastr.scss";
+<style lang="scss">
+@import "~bootswatch/dist/slate/variables";
+@import "~bootstrap/scss/bootstrap";
+@import "~bootswatch/dist/slate/bootswatch";
+
+@import "~bootstrap-vue/src/index.scss";
+
+@import "~toastr/toastr.scss";
 </style>

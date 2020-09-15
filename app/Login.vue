@@ -1,83 +1,61 @@
 <template>
-  <div class="container">
-    <form class="form-signin" @submit.prevent="login">
-      <input
-        type="email"
-        name="email"
-        autocomplete="email"
-        class="form-control"
-        placeholder="Email"
-        required
-        autofocus
-      />
-      <input
-        type="password"
-        name="password"
-        autocomplete="current-password"
-        class="form-control"
-        placeholder="Password"
-        required
-      />
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      <div class="mt-5 mb-3 text-muted text-center">
-        <router-link to="/register">Register</router-link>
-      </div>
-    </form>
-  </div>
+  <b-container>
+    <b-form class="form-signin mx-auto" @submit="login" style="width: 400px;">
+      <b-row class="mb-4 text-center">
+        <b-col class="h1">Login</b-col>
+      </b-row>
+
+      <b-row class="my-1">
+        <b-input v-model="form.email" type="email" placeholder="Email" required autofocus></b-input>
+      </b-row>
+
+      <b-row class="my-1">
+        <b-input v-model="form.password" type="password" placeholder="Password" required></b-input>
+      </b-row>
+
+      <b-row class="my-3">
+        <b-button type="submit" variant="info" block>Let me in!</b-button>
+      </b-row>
+    </b-form>
+  </b-container>
 </template>
 
 <style scoped>
 .form-signin {
-  max-width: 40vw;
-  padding-top: 40vh;
-  margin: 0 auto;
-}
-
-.form-signin .form-control {
-  position: relative;
-  box-sizing: border-box;
-  border-radius: 5px;
-  height: auto;
-  padding: 10px;
-  font-size: 20px;
-}
-
-.form-signin input[type="email"] {
-  margin-bottom: 5px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.form-signin input[type="password"] {
-  margin-bottom: 5px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
-
 <script>
 import axios from "axios";
 import toastr from "toastr";
 
 export default {
+  data() {
+    return {
+      form: {
+        email: "",
+        password: "",
+      },
+    };
+  },
   methods: {
-    login(submit) {
+    login(evt) {
+      evt.preventDefault();
       axios
-        .post("/api/auth/login", {
-          email: submit.target.elements.email.value,
-          password: submit.target.elements.password.value,
-        })
-        .then((r) => {
-          toastr.success(r.data.message);
-          this.$store.commit("loggedIn");
-          this.$store.watch(
-            (state) => state.user,
-            (user) => {
-              this.$router.push({ name: "Streamer" });
-            }
-          );
-        })
-        .catch((e) => toastr.error(e.response.data.error));
+        .post("/api/auth/login", this.form)
+        .then(this.processLogin)
+        .catch(e => toastr.error(e.response.data.error));
+    },
+    processLogin(req) {
+      toastr.success(req.data.message);
+      this.$store.commit("loggedIn");
+      this.$store.watch(
+        state => state.user,
+        user => this.$router.push({ name: "Streamer" })
+      );
     },
   },
   created() {

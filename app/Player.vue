@@ -112,7 +112,7 @@ export default {
         this.player.src(src);
       }
 
-      this.player.play().catch((e) => {
+      this.player.play().catch(e => {
         this.noInteract = true;
         toastr.info("Click the video to unmute!");
         videojs.log("Attempting to mute and play due to interact error");
@@ -138,14 +138,14 @@ export default {
     this.ws = new ReconnectingWebSocket(process.env.WSS_URL + this.channel);
     this.ws.onmessage = this.onMessage;
 
-    this.$on("streamInfo", (data) => {
+    this.$on("streamInfo", data => {
       if (this.channel === data.channel) {
         this.meta = data.meta;
       }
     });
 
     // On streamStart play stream
-    this.$on("streamStart", (data) => {
+    this.$on("streamStart", data => {
       if (this.channel === data.channel) {
         toastr.success("Stream is starting!");
         this.play();
@@ -153,7 +153,7 @@ export default {
     });
 
     //on streamEnd stop stream
-    this.$on("streamEnd", (data) => {
+    this.$on("streamEnd", data => {
       if (this.channel === data.channel) {
         toastr.error("Stream has ended!");
         this.player.pause();
@@ -177,7 +177,7 @@ export default {
     this.player.controlBar.addChild(new AmplifierButton(this.player), {}, 2);
 
     // Remember volume
-    this.player.on("volumechange", (x) => {
+    this.player.on("volumechange", () => {
       if (!this.player.muted()) {
         localStorage.setItem("player-volume", this.player.volume());
       }
@@ -190,11 +190,9 @@ export default {
     });
 
     // Fullscreen on double click
-    this.player.on("dblclick", (event) => {
+    this.player.on("dblclick", event => {
       if (event.target.nodeName === "DIV") {
-        this.player.isFullscreen()
-          ? this.player.exitFullscreen()
-          : this.player.requestFullscreen();
+        this.player.isFullscreen() ? this.player.exitFullscreen() : this.player.requestFullscreen();
       }
     });
 

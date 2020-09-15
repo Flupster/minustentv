@@ -1,12 +1,18 @@
 <template>
-  <div class="container-fluid">
-    <div class="text-center">
-      <img src="../assets/notfound.gif" />
-    </div>
-    <h1 class="text-center">
-      <a href="#" @click="$router.go(-1)">GO BACK</a>
-    </h1>
-  </div>
+  <b-container fluid>
+    <b-row class="text-center">
+      <b-col>
+        <img src="../assets/notfound.gif" />
+      </b-col>
+    </b-row>
+    <b-row class="mt-3 text-center">
+      <b-col>
+        <h3>
+          <b-link @click="$router.go(-1)">GO BACK</b-link>
+        </h3>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <style scoped>

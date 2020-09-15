@@ -58,7 +58,7 @@
             v-b-modal.stream-modal
             v-for="result in results"
             @click="stream.file = result"
-          >{{ result.split('/').slice(-1).pop() }}</b-list-group-item>
+          >{{ result.split("/").slice(-1).pop()}}</b-list-group-item>
         </b-list-group>
       </b-col>
     </b-row>
@@ -71,7 +71,7 @@
             <b-col md="6" class="text-center">
               Time
               <br />
-              {{ progress.timemark.slice(0,-3) }} / {{ progress.runtime || "?" }}
+              {{ progress.timemark.slice(0, -3) }} / {{ progress.runtime || "?" }}
             </b-col>
 
             <b-col class="text-center">
@@ -153,7 +153,7 @@ export default {
         .get("/api/streamer/mediainfo", {
           params: { file: this.stream.file },
         })
-        .then((r) => {
+        .then(r => {
           this.stream = {
             file: this.stream.file,
             start: "00:00:00",
@@ -172,12 +172,12 @@ export default {
             ],
           };
 
-          const vt = r.data.streams.filter((s) => s.codec_type === "video")[0];
+          const vt = r.data.streams.filter(s => s.codec_type === "video")[0];
           if (vt.height > 720) {
             this.tracks.resolution.push({ value: 1080, text: "1080p" });
           }
 
-          r.data.streams.forEach((stream) => {
+          r.data.streams.forEach(stream => {
             const language = langs.where("2B", stream.tags.language);
             const text = stream.tags.title ?? language?.name ?? "Unknown";
 
@@ -205,7 +205,7 @@ export default {
             }
           });
         })
-        .catch((e) => {
+        .catch(e => {
           console.error(e);
           toastr.error("Failed to get media info!");
         });
@@ -219,7 +219,7 @@ export default {
       const times = time
         .slice(0, -3)
         .split(":")
-        .map((n) => parseInt(n));
+        .map(n => parseInt(n));
       const total = times[0] * 3600 + times[1] * 60 + times[2] + ms;
       const runtime = Math.ceil((100 / progress.percent) * total);
       progress.runtime = new Date(runtime * 1000).toISOString().substr(11, 8);
@@ -265,28 +265,26 @@ export default {
         toastr.info(text, "Trying to play");
         axios
           .post("/api/streamer/stream/url", { url: text })
-          .catch((e) =>
-            toastr.error(e.response.data?.error ?? "Unknown Error")
-          );
+          .catch(e => toastr.error(e.response.data?.error ?? "Unknown Error"));
       }
     },
     kill() {
       axios
         .delete("/api/streamer/mtv")
-        .then((r) => {
+        .then(r => {
           this.progress = null;
           toastr.success(r.data.success);
         })
-        .catch((e) => toastr.error(e.response.data?.error ?? "Unknown Error"));
+        .catch(e => toastr.error(e.response.data?.error ?? "Unknown Error"));
     },
     streamFile() {
       this.search = "";
       axios
         .post("/api/streamer/stream/file", { ...this.stream })
-        .then((r) => {
+        .then(r => {
           toastr.success(`PID: ${r.data.pid}`, "Stream started");
         })
-        .catch((e) => toastr.error(e.response.data.error, "Stream error"));
+        .catch(e => toastr.error(e.response.data.error, "Stream error"));
     },
   },
   watch: {
@@ -299,22 +297,17 @@ export default {
             "Content-Type": "multipart/form-data",
           },
         })
-        .then((r) => toastr.success(r.data.message))
-        .catch((e) =>
-          toastr.error(e.response.data?.error ?? "That didn't work")
-        );
+        .then(r => toastr.success(r.data.message))
+        .catch(e => toastr.error(e.response.data?.error ?? "That didn't work"));
 
-      toastr.warning(
-        "If you close this browser tab the stream will end!",
-        "Uploading File..."
-      );
+      toastr.warning("If you close this browser tab the stream will end!", "Uploading File...");
     },
     search(search) {
       if (search.length > 3) {
         axios
           .post("/api/streamer/search", { search })
-          .then((r) => (this.results = r.data))
-          .catch((e) => toastr.error(e.response.data.error, "Search error"));
+          .then(r => (this.results = r.data))
+          .catch(e => toastr.error(e.response.data.error, "Search error"));
       }
     },
   },

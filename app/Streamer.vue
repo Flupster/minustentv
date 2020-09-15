@@ -32,8 +32,6 @@
       </b-form-group>
     </b-modal>
 
-    <b-button variant="dark" style="position: absolute; right: 0; top: 0;" @click="kill">Kill</b-button>
-
     <!-- Inputs -->
     <b-row>
       <b-col md="6">
@@ -66,9 +64,9 @@
     <!-- Footer -->
     <div v-if="progress" class="progress-footer fixed-bottom">
       <b-row>
-        <b-col md="6">
+        <b-col md="5">
           <b-row class="font-weight-bold">
-            <b-col md="6" class="text-center">
+            <b-col class="text-center">
               Time
               <br />
               {{ progress.timemark.slice(0, -3) }} / {{ progress.runtime || "?" }}
@@ -79,22 +77,19 @@
               <br />
               {{ progress.currentKbps }} kbps
             </b-col>
-
-            <b-col v-if="progress.percent" class="text-center">
-              Progress
-              <br />
-              {{ progress.percent.toFixed(2) }}%
-            </b-col>
           </b-row>
         </b-col>
-        <b-col md="6">
+        <b-col v-if="progress.percent" md="6">
           <b-progress max="100" height="100%">
-            <b-progress-bar :value="progress.percent">
-              <span>
-                <strong>{{ progress.percent }}%</strong>
-              </span>
-            </b-progress-bar>
+            <b-progress-bar :value="progress.percent" variant="info"></b-progress-bar>
+            <span>{{ progress.percent.toFixed(2) }} %</span>
           </b-progress>
+        </b-col>
+
+        <b-col md="1">
+          <b-button variant="danger" @click="kill" block>
+            <i class="fas fa-stop"></i>
+          </b-button>
         </b-col>
       </b-row>
     </div>
@@ -102,24 +97,17 @@
 </template>
 
 <style scoped>
-.sidebar {
-  height: 100%;
-  width: 30vw;
-  position: fixed;
-  z-index: 500;
-  top: 0;
-  left: 0;
-  background-color: #111111ba;
-  overflow-x: hidden;
-  padding-top: 60px;
+.progress span {
+  position: absolute;
+  top: 50%;
+  font-size: 180%;
+  text-align: center;
+  width: 100%;
+  color: white;
 }
 
-.sidebar .closebtn {
-  position: absolute;
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-  margin-left: 50px;
+.bg-info {
+  background-color: #5bc0de80 !important;
 }
 
 .progress-footer {
@@ -143,16 +131,13 @@ export default {
       results: [],
       ws: null,
       progress: null,
-      nav: false,
       showModal: false,
     };
   },
   methods: {
     getMediaInfo(event) {
       axios
-        .get("/api/streamer/mediainfo", {
-          params: { file: this.stream.file },
-        })
+        .get("/api/streamer/mediainfo", { params: { file: this.stream.file } })
         .then(r => {
           this.stream = {
             file: this.stream.file,
@@ -162,6 +147,7 @@ export default {
             subtitle: null,
             resolution: 720,
           };
+
           this.tracks = {
             video: [],
             audio: [],
@@ -173,7 +159,7 @@ export default {
           };
 
           const vt = r.data.streams.filter(s => s.codec_type === "video")[0];
-          if (vt.height > 720) {
+          if (vt.height && vt.height > 720) {
             this.tracks.resolution.push({ value: 1080, text: "1080p" });
           }
 
@@ -214,6 +200,7 @@ export default {
       if (!progress.percent) {
         return (this.progress = progress);
       }
+
       const time = progress.timemark;
       const ms = parseInt(time.substr(-2)) / 100;
       const times = time
@@ -256,9 +243,6 @@ export default {
           break;
       }
     },
-    toggleNav() {
-      this.nav = !this.nav;
-    },
     onPaste(clipboard) {
       const text = clipboard.clipboardData.getData("text");
       if (text && text.startsWith("http")) {
@@ -280,7 +264,7 @@ export default {
     streamFile() {
       this.search = "";
       axios
-        .post("/api/streamer/stream/file", { ...this.stream })
+        .post("/api/streamer/stream/file", this.stream)
         .then(r => {
           toastr.success(`PID: ${r.data.pid}`, "Stream started");
         })
@@ -293,9 +277,7 @@ export default {
       formData.append("image", file);
       axios
         .post("/api/streamer/stream/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         })
         .then(r => toastr.success(r.data.message))
         .catch(e => toastr.error(e.response.data?.error ?? "That didn't work"));

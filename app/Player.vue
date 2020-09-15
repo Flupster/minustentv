@@ -18,7 +18,7 @@
 }
 
 .vjs-control-bar {
-  background-color: rgb(0 0 0 / 50%) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 .video-js.vjs-playing .vjs-tech {
@@ -128,7 +128,7 @@ export default {
       const currentTime = this.player.currentTime();
       const liveTime = this.player.liveTracker.liveCurrentTime();
       const behind = liveTime - currentTime;
-      if (behind > 3 && behind !== Infinity) {
+      if (behind > 2 && behind !== Infinity) {
         this.player.currentTime(liveTime - 3);
       }
     },
@@ -196,7 +196,10 @@ export default {
       }
     });
 
-    //If player is muted due to non interaction error unmute on click
+    // On click of viewerButton seek to live edge
+    this.viewerButton.on("click", this.seekToLive);
+
+    // If player is muted due to non interaction error unmute on click
     this.player.on("click", () => {
       if (this.noInteract) {
         this.noInteract = false;

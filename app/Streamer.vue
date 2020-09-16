@@ -63,6 +63,11 @@
 
     <!-- Footer -->
     <div v-if="progress" class="progress-footer fixed-bottom">
+      <b-row v-if="stream.file">
+        <b-col class="mt-2">
+          <h4 class="text-center">{{ stream.file.split("/").pop() }}</h4>
+        </b-col>
+      </b-row>
       <b-row>
         <b-col md="5">
           <b-row class="font-weight-bold">
@@ -87,7 +92,7 @@
         </b-col>
 
         <b-col md="1">
-          <b-button variant="danger" @click="kill" block>
+          <b-button @click="kill" class="float-right">
             <i class="fas fa-stop"></i>
           </b-button>
         </b-col>

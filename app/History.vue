@@ -1,12 +1,12 @@
 <template>
   <div>
     <b-navbar type="dark">
-      <b-navbar-brand href="/streamer">MinustenTV</b-navbar-brand>
+      <b-navbar-brand to="/streamer">MinustenTV</b-navbar-brand>
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
-          <b-nav-item href="/streamer">Streamer</b-nav-item>
-          <b-nav-item href="/history" active>History</b-nav-item>
+          <b-nav-item to="/streamer">Streamer</b-nav-item>
+          <b-nav-item to="/history" active>History</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>

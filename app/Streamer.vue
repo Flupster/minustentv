@@ -33,12 +33,12 @@
     </b-modal>
 
     <b-navbar type="dark">
-      <b-navbar-brand href="/">MinustenTV</b-navbar-brand>
+      <b-navbar-brand to="/">MinustenTV</b-navbar-brand>
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
-          <b-nav-item href="/streamer" active>Streamer</b-nav-item>
-          <b-nav-item href="/history">History</b-nav-item>
+          <b-nav-item to="/streamer" active>Streamer</b-nav-item>
+          <b-nav-item to="/history">History</b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto nav-search">

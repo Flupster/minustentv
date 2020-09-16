@@ -3,9 +3,9 @@
 </template>
 
 <style lang="scss">
-@import "~bootswatch/dist/slate/variables";
+@import "~bootswatch/dist/darkly/variables";
 @import "~bootstrap/scss/bootstrap";
-@import "~bootswatch/dist/slate/bootswatch";
+@import "~bootswatch/dist/darkly/bootswatch";
 @import "~bootstrap-vue/src/index.scss";
 
 @import "~toastr/toastr.scss";

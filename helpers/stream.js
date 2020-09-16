@@ -14,7 +14,12 @@ class Stream extends Ffmpeg {
   }
 
   addMap(type, index) {
-    this.outputOption(`-map 0:${type}:${index}`);
+    if (index === undefined) {
+      this.outputOption(`-map 0:${type}`);
+    } else {
+      this.outputOption(`-map 0:${type}:${index}`);
+    }
+
     return this;
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <b-container @paste="onPaste">
+  <div>
     <!-- Stream Modal -->
     <b-modal
       id="stream-modal"
@@ -32,76 +32,89 @@
       </b-form-group>
     </b-modal>
 
-    <!-- Inputs -->
-    <b-row>
-      <b-col md="6">
-        <b-form-input v-model="search" placeholder="Search Remote Files" autofocus></b-form-input>
-      </b-col>
-      <b-col md="6">
-        <b-form-file
-          v-model="upload"
-          placeholder="Stream a file from your computer"
-          drop-placeholder="Drop file here..."
-        ></b-form-file>
-      </b-col>
-    </b-row>
+    <b-navbar type="dark">
+      <b-navbar-brand href="/">MinustenTV</b-navbar-brand>
 
-    <hr />
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item href="/streamer" active>Streamer</b-nav-item>
+          <b-nav-item href="/history">History</b-nav-item>
+        </b-navbar-nav>
 
-    <!-- Search Results -->
-    <b-row>
-      <b-col md="12">
-        <b-list-group>
-          <b-list-group-item
-            v-b-modal.stream-modal
-            v-for="result in results"
-            @click="stream.file = result"
-          >{{ result.split("/").slice(-1).pop()}}</b-list-group-item>
-        </b-list-group>
-      </b-col>
-    </b-row>
+        <b-navbar-nav class="ml-auto nav-search">
+          <!-- Inputs -->
+          <b-col>
+            <b-form-input v-model="search" placeholder="Search Remote Files" autofocus></b-form-input>
+          </b-col>
+          <b-col>
+            <b-form-file v-model="upload" placeholder="Stream Your File"></b-form-file>
+          </b-col>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
 
-    <!-- Footer -->
-    <div v-if="progress" class="progress-footer fixed-bottom">
-      <b-row v-if="stream.file">
-        <b-col class="mt-2">
-          <h4 class="text-center">{{ stream.file.split("/").pop() }}</h4>
+    <b-container class="mt-4" @paste="onPaste">
+      <!-- Search Results -->
+      <b-row>
+        <b-col md="12">
+          <b-list-group>
+            <b-list-group-item
+              v-b-modal.stream-modal
+              v-for="result in results"
+              @click="stream.file = result"
+            >{{ result.split("/").slice(-1).pop()}}</b-list-group-item>
+          </b-list-group>
         </b-col>
       </b-row>
-      <b-row>
-        <b-col md="5">
-          <b-row class="font-weight-bold">
-            <b-col class="text-center">
-              Time
-              <br />
-              {{ progress.timemark.slice(0, -3) }} / {{ progress.runtime || "?" }}
-            </b-col>
 
-            <b-col class="text-center">
-              Bitrate
-              <br />
-              {{ progress.currentKbps }} kbps
-            </b-col>
-          </b-row>
-        </b-col>
-        <b-col v-if="progress.percent" md="6">
-          <b-progress max="100" height="100%">
-            <b-progress-bar :value="progress.percent" variant="info"></b-progress-bar>
-            <span>{{ progress.percent.toFixed(2) }} %</span>
-          </b-progress>
-        </b-col>
+      <!-- Footer -->
+      <div v-if="progress" class="progress-footer fixed-bottom">
+        <b-row>
+          <b-col md="6">
+            <b-row class="font-weight-bold">
+              <b-col class="text-center">
+                Time
+                <br />
+                {{ progress.timemark.slice(0, -3) }} / {{ progress.runtime || "?" }}
+              </b-col>
 
-        <b-col md="1">
-          <b-button @click="kill" class="float-right">
+              <b-col class="text-center">
+                Bitrate
+                <br />
+                {{ progress.currentKbps }} kbps
+              </b-col>
+            </b-row>
+          </b-col>
+          <b-col v-if="progress.percent" md="6">
+            <b-progress max="100" height="100%">
+              <b-progress-bar :value="progress.percent" variant="info"></b-progress-bar>
+              <span>{{ progress.percent.toFixed(2) }} %</span>
+            </b-progress>
+          </b-col>
+
+          <b-button @click="kill" class="float-right kill-btn">
             <i class="fas fa-stop"></i>
           </b-button>
-        </b-col>
-      </b-row>
-    </div>
-  </b-container>
+        </b-row>
+      </div>
+    </b-container>
+  </div>
 </template>
 
-<style scoped>
+<style>
+.kill-btn {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+}
+
+.nav-search {
+  min-width: 50vw;
+  position: absolute;
+  right: 0;
+}
+
 .progress span {
   position: absolute;
   top: 50%;

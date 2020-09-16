@@ -12,6 +12,7 @@ import Streamer from "./Streamer.vue";
 import Player from "./Player.vue";
 import Login from "./Login.vue";
 import Register from "./Register.vue";
+import History from "./History.vue";
 import NotFound from "./NotFound.vue";
 
 import axios from "axios";
@@ -38,6 +39,7 @@ const router = new VueRouter({
     { name: "Login", path: "/login", component: Login },
     { name: "Register", path: "/register", component: Register },
     { name: "Streamer", path: "/streamer", component: Streamer },
+    { name: "History", path: "/history", component: History },
     { name: "NotFound", path: "*", component: NotFound },
   ],
 });

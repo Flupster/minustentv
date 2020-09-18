@@ -56,6 +56,9 @@
     <b-container class="mt-4" @paste="onPaste">
       <!-- Search Results -->
       <b-row>
+        <b-col v-if="searchLoading" md="12" class="text-center mt-4">
+          <b-spinner variant="success" class="search-loading"></b-spinner>
+        </b-col>
         <b-col md="12">
           <b-list-group>
             <b-list-group-item
@@ -109,6 +112,11 @@
   height: 100%;
 }
 
+.search-loading {
+  width: 3rem;
+  height: 3rem;
+}
+
 .nav-search {
   min-width: 50vw;
   position: absolute;
@@ -143,6 +151,7 @@ export default {
   data() {
     return {
       search: "",
+      searchLoading: false,
       upload: null,
       tracks: {},
       stream: {},
@@ -303,11 +312,15 @@ export default {
       toastr.warning("If you close this browser tab the stream will end!", "Uploading File...");
     },
     search(search) {
+      this.results = [];
+
       if (search.length > 3) {
+        this.searchLoading = true;
         axios
           .post("/api/streamer/search", { search })
           .then(r => (this.results = r.data))
-          .catch(e => toastr.error(e.response.data.error, "Search error"));
+          .catch(e => toastr.error(e.response.data.error, "Search error"))
+          .finally(() => (this.searchLoading = false));
       }
     },
   },

@@ -182,8 +182,8 @@ export default {
           }
 
           r.data.streams.forEach(stream => {
-            const language = langs.where("2B", stream.tags.language);
-            const text = stream.tags.title ?? language?.name ?? "Unknown";
+            const language = langs.where("2B", stream.tags?.language);
+            const text = stream.tags?.title ?? language?.name ?? "Unknown";
 
             switch (stream.codec_type) {
               case "video":

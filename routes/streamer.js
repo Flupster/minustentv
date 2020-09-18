@@ -4,6 +4,7 @@ const axios = require("axios");
 const path = require("path");
 const Ffmpeg = require("fluent-ffmpeg");
 const StreamModel = require("../models/Stream");
+const KillModel = require("../models/Kill");
 const YoutubeDlWrap = require("youtube-dl-wrap");
 const Stream = require("../helpers/stream");
 const Wss = require("../helpers/wss");
@@ -59,9 +60,7 @@ router.post("/stream/upload", (req, res) => {
 
 // /api/streamer/stream/url stream a file from url
 router.post("/stream/url", (req, res) => {
-  const youtubeDlWrap = new YoutubeDlWrap(
-    path.resolve("node_modules/youtube-dl/bin/youtube-dl")
-  );
+  const youtubeDlWrap = new YoutubeDlWrap(path.resolve("node_modules/youtube-dl/bin/youtube-dl"));
   const video = youtubeDlWrap.execStream([req.body.url, "-f", "best"]);
 
   youtubeDlWrap.getVideoInfo(req.body.url).then(meta => {
@@ -79,6 +78,30 @@ router.post("/stream/url", (req, res) => {
     userId: req.user._id,
   }).save();
 });
+
+//Stream killer
+router.delete("/:channel", (req, res) => {
+  new KillModel({ userId: req.user._id }).save();
+
+  axios
+    .delete(process.env.NMS_URL + "api/streams/live/" + req.params.channel)
+    .then(r => {
+      res.status(200).json({ success: "Stream was killed" });
+    })
+    .catch(e => {
+      res.status(500).json({ error: "Could not kill stream: " + e.message });
+    });
+});
+
+//Media Info
+router.get("/mediainfo", (req, res) => {
+  Ffmpeg.ffprobe(req.query.file, (e, meta) => {
+    if (e) return res.status(500).json({ error: e });
+    res.status(200).json(meta);
+  });
+});
+
+router.ws("/", (req, res) => {});
 
 // Helper function to start streams
 function StartStream(req, res, input) {
@@ -125,27 +148,5 @@ function StartStream(req, res, input) {
   stream.run();
   return stream;
 }
-
-//Stream killer
-router.delete("/:channel", (req, res) => {
-  axios
-    .delete(process.env.NMS_URL + "api/streams/live/" + req.params.channel)
-    .then(r => {
-      res.status(200).json({ success: "Stream was killed" });
-    })
-    .catch(e => {
-      res.status(500).json({ error: "Could not kill stream: " + e.message });
-    });
-});
-
-//Media Info
-router.get("/mediainfo", (req, res) => {
-  Ffmpeg.ffprobe(req.query.file, (e, meta) => {
-    if (e) return res.status(500).json({ error: e });
-    res.status(200).json(meta);
-  });
-});
-
-router.ws("/", (req, res) => {});
 
 module.exports = router;

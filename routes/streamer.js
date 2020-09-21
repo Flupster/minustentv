@@ -10,10 +10,10 @@ const Stream = require("../helpers/stream");
 const Wss = require("../helpers/wss");
 const Busboy = require("busboy");
 const router = require("express").Router();
-const verified = require("../middleware/verified");
+const canStream = require("../middleware/canStream");
 
-//attach verified middleware for verified user access
-router.use(verified);
+//attach canStream middleware for verified user access
+router.use(canStream);
 
 // /api/streamer/search search for files
 router.post("/search", async (req, res) => {
@@ -36,7 +36,7 @@ router.post("/stream/file", async (req, res) => {
   new StreamModel({
     inputType: "file",
     inputSource: req.body.file,
-    userId: req.user._id,
+    discordId: req.user.id,
   }).save();
 });
 
@@ -54,7 +54,7 @@ router.post("/stream/upload", (req, res) => {
   new StreamModel({
     inputType: "upload",
     inputSource: null,
-    userId: req.user._id,
+    discordId: req.user.id,
   }).save();
 });
 
@@ -75,13 +75,13 @@ router.post("/stream/url", (req, res) => {
   new StreamModel({
     inputType: "url",
     inputSource: req.body.url,
-    userId: req.user._id,
+    discordId: req.user.id,
   }).save();
 });
 
 //Stream killer
 router.delete("/:channel", (req, res) => {
-  new KillModel({ userId: req.user._id }).save();
+  new KillModel({ discordId: req.user.id }).save();
 
   axios
     .delete(process.env.NMS_URL + "api/streams/live/" + req.params.channel)

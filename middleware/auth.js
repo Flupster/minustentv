@@ -1,21 +1,9 @@
-const jwt = require("jsonwebtoken");
-
-// Middleware for authentication-protected routes
-// Verify token from cookie
 const auth = (req, res, next) => {
-  // Check if token exists
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ error: "access denied, no token provided." });
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    return res.status(400).json({ error: "User is not logged in" });
   }
-  // Check if token is valid
-  try {
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
-    req.decoded = decoded;
-  } catch (err) {
-    return res.status(400).json({ error: "invalid token." });
-  }
-  next();
 };
 
 module.exports = auth;

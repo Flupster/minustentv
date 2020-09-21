@@ -23,8 +23,7 @@ class Wss {
     this.wss = this.app.getWss();
 
     this.wss.on("connection", (ws, req) => {
-      ws.path = req.baseUrl;
-
+      ws.path = req.url.split(".")[0];
       ws.json = wsjson;
       ws.event = wsevent;
 
@@ -40,6 +39,7 @@ class Wss {
   }
 
   sendJsonPath(path, data) {
+    if (!path.endsWith("/")) path = path + "/";
     this.clients
       .filter(ws => ws.readyState === 1)
       .filter(ws => ws.path === path)

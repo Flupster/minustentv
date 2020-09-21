@@ -1,27 +1,24 @@
 const router = require("express").Router();
 const Stream = require("../models/Stream");
 
-const verified = require("../middleware/verified");
+const canStream = require("../middleware/canStream");
 
-//attach verified middleware for verified user access
-router.use(verified);
+//attach canStream middleware for verified user access
+router.use(canStream);
 
 // @route /api/history
 router.get("/stream", async (req, res) => {
   const query = Stream.aggregate([
     {
-      $lookup: {
-        from: "users",
-        localField: "userId",
-        foreignField: "_id",
-        as: "user",
-      },
+      $lookup: { from: "users", localField: "discordId", foreignField: "id", as: "user" },
     },
-    { $unwind: { path: "$user" } },
+    {
+      $unwind: { path: "$user" },
+    },
     {
       $group: {
         _id: "$_id",
-        user: { $first: "$user.name" },
+        user: { $first: "$user.username" },
         date: { $first: "$date" },
         source: { $first: "$inputSource" },
         type: { $first: "$inputType" },

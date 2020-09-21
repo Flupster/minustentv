@@ -325,14 +325,14 @@ export default {
     },
   },
   mounted() {
-    if (!this.$store.state.user) {
-      this.$router.push({ name: "Login" });
-    } else if (!this.$store.state.user.verified) {
-      this.$router.push({ name: "Player" });
-    }
-
     this.ws = new ReconnectingWebSocket(process.env.WSS_URL + "api/streamer");
     this.ws.onmessage = this.onMessage;
+  },
+  beforeMount() {
+    if (!this.$store.state.user) {
+      toastr.warning("Login or get the Patreon role to visit the streamer!", "Access denied");
+      this.$router.push({ name: "Player" });
+    }
   },
 };
 </script>

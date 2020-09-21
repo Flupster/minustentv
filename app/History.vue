@@ -72,8 +72,7 @@ export default {
   },
   beforeMount() {
     if (!this.$store.state.user) {
-      this.$router.push({ name: "Login" });
-    } else if (!this.$store.state.user.verified) {
+      toastr.warning("Login or get the Patreon role to visit the streamer!", "Access denied");
       this.$router.push({ name: "Player" });
     }
   },

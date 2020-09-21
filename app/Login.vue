@@ -1,3 +1,5 @@
+<template></template>
+
 <script>
 import axios from "axios";
 import toastr from "toastr";

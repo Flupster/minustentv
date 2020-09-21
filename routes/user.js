@@ -1,8 +1,8 @@
 const router = require("express").Router();
-const auth = require("../middleware/auth");
+const canStream = require("../middleware/canStream");
 
 // /api/user get the current user
-router.get("/", auth, async (req, res) => {
+router.get("/", canStream, async (req, res) => {
   res.status(200).send(req.user);
 });
 

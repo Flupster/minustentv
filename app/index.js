@@ -9,9 +9,8 @@ Vue.use(BootstrapVue);
 
 import App from "./App.vue";
 import Streamer from "./Streamer.vue";
-import Player from "./Player.vue";
 import Login from "./Login.vue";
-import Register from "./Register.vue";
+import Player from "./Player.vue";
 import History from "./History.vue";
 import NotFound from "./NotFound.vue";
 
@@ -37,7 +36,6 @@ const router = new VueRouter({
   routes: [
     { name: "Player", path: "/", component: Player },
     { name: "Login", path: "/login", component: Login },
-    { name: "Register", path: "/register", component: Register },
     { name: "Streamer", path: "/streamer", component: Streamer },
     { name: "History", path: "/history", component: History },
     { name: "NotFound", path: "*", component: NotFound },

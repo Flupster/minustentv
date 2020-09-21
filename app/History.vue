@@ -67,7 +67,6 @@ export default {
       this.$router.push({ name: "Player" });
     },
   },
-  watch: {},
   mounted() {
     axios.get("/api/history/stream").then(this.onData).catch(this.onError);
   },

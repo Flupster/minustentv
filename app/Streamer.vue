@@ -3,24 +3,24 @@
     <!-- NavBar -->
     <b-navbar toggleable="lg" type="dark" variant="dark">
       <b-navbar-brand to="/">MinustenTV</b-navbar-brand>
-
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item to="/streamer" active>Streamer</b-nav-item>
           <b-nav-item to="/history">History</b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav class="ml-auto nav-search">
+        <b-navbar-nav class="ml-auto">
           <!-- Inputs -->
           <b-nav-form>
-            <b-form-checkbox v-model="niceNames" switch>Nice Names</b-form-checkbox>
+            <b-form-checkbox class="mr-4" v-model="niceNames" switch>Nice Names</b-form-checkbox>
+            <b-form-input
+              v-model="search"
+              placeholder="Search..."
+              class="text-center nav-search"
+              autofocus
+            ></b-form-input>
           </b-nav-form>
-          <b-col>
-            <b-form-input v-model="search" placeholder="Search Remote Files" autofocus></b-form-input>
-          </b-col>
-          <b-col>
-            <b-form-file v-model="upload" placeholder="Stream Your File"></b-form-file>
-          </b-col>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
@@ -120,9 +120,7 @@
 }
 
 .nav-search {
-  min-width: 50vw;
-  position: absolute;
-  right: 0;
+  width: 25vw !important;
 }
 
 .progress span {

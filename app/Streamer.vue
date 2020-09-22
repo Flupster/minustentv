@@ -312,8 +312,6 @@ export default {
       toastr.warning("If you close this browser tab the stream will end!", "Uploading File...");
     },
     search(search) {
-      this.results = [];
-
       if (search.length > 3) {
         this.searchLoading = true;
         axios

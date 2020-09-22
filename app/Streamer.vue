@@ -1,5 +1,78 @@
 <template>
   <div>
+    <!-- NavBar -->
+    <b-navbar toggleable="lg" type="dark" variant="dark">
+      <b-navbar-brand to="/">MinustenTV</b-navbar-brand>
+
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item to="/streamer" active>Streamer</b-nav-item>
+          <b-nav-item to="/history">History</b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav class="ml-auto nav-search">
+          <!-- Inputs -->
+          <b-nav-form>
+            <b-form-checkbox v-model="niceNames" switch>Nice Names</b-form-checkbox>
+          </b-nav-form>
+          <b-col>
+            <b-form-input v-model="search" placeholder="Search Remote Files" autofocus></b-form-input>
+          </b-col>
+          <b-col>
+            <b-form-file v-model="upload" placeholder="Stream Your File"></b-form-file>
+          </b-col>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+
+    <!-- Search Results -->
+    <b-container class="mt-4" @paste="onPaste">
+      <b-row>
+        <b-col md="12">
+          <b-overlay :show="searchLoading" variant="dark" rounded="sm">
+            <b-list-group>
+              <b-list-group-item
+                v-for="result in searchResults"
+                v-b-modal.stream-modal
+                @click="stream.file = result.file"
+              >{{ result.name }}</b-list-group-item>
+            </b-list-group>
+          </b-overlay>
+        </b-col>
+      </b-row>
+    </b-container>
+
+    <!-- Footer -->
+    <div v-if="progress" class="progress-footer fixed-bottom">
+      <b-row>
+        <b-col md="6">
+          <b-row class="font-weight-bold">
+            <b-col class="text-center">
+              Time
+              <br />
+              {{ progress.timemark.slice(0, -3) }} / {{ progress.runtime || "?" }}
+            </b-col>
+
+            <b-col class="text-center">
+              Bitrate
+              <br />
+              {{ progress.currentKbps }} kbps
+            </b-col>
+          </b-row>
+        </b-col>
+        <b-col v-if="progress.percent" md="6">
+          <b-progress max="100" height="100%">
+            <b-progress-bar :value="progress.percent" variant="info"></b-progress-bar>
+            <span>{{ progress.percent.toFixed(2) }} %</span>
+          </b-progress>
+        </b-col>
+
+        <b-button @click="kill" class="float-right kill-btn">
+          <i class="fas fa-stop"></i>
+        </b-button>
+      </b-row>
+    </div>
+
     <!-- Stream Modal -->
     <b-modal
       id="stream-modal"
@@ -31,76 +104,6 @@
         <b-form-select v-model="stream.subtitle" :options="tracks.subtitle"></b-form-select>
       </b-form-group>
     </b-modal>
-
-    <b-navbar type="dark">
-      <b-navbar-brand to="/">MinustenTV</b-navbar-brand>
-
-      <b-collapse id="nav-collapse" is-nav>
-        <b-navbar-nav>
-          <b-nav-item to="/streamer" active>Streamer</b-nav-item>
-          <b-nav-item to="/history">History</b-nav-item>
-        </b-navbar-nav>
-
-        <b-navbar-nav class="ml-auto nav-search">
-          <!-- Inputs -->
-          <b-col>
-            <b-form-input v-model="search" placeholder="Search Remote Files" autofocus></b-form-input>
-          </b-col>
-          <b-col>
-            <b-form-file v-model="upload" placeholder="Stream Your File"></b-form-file>
-          </b-col>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
-
-    <b-container class="mt-4" @paste="onPaste">
-      <!-- Search Results -->
-      <b-row>
-        <b-col v-if="searchLoading" md="12" class="text-center mt-4">
-          <b-spinner variant="success" class="search-loading"></b-spinner>
-        </b-col>
-        <b-col md="12">
-          <b-list-group>
-            <b-list-group-item
-              v-b-modal.stream-modal
-              v-for="result in results"
-              @click="stream.file = result"
-            >{{ result.split("/").slice(-1).pop()}}</b-list-group-item>
-          </b-list-group>
-        </b-col>
-      </b-row>
-
-      <!-- Footer -->
-      <div v-if="progress" class="progress-footer fixed-bottom">
-        <b-row>
-          <b-col md="6">
-            <b-row class="font-weight-bold">
-              <b-col class="text-center">
-                Time
-                <br />
-                {{ progress.timemark.slice(0, -3) }} / {{ progress.runtime || "?" }}
-              </b-col>
-
-              <b-col class="text-center">
-                Bitrate
-                <br />
-                {{ progress.currentKbps }} kbps
-              </b-col>
-            </b-row>
-          </b-col>
-          <b-col v-if="progress.percent" md="6">
-            <b-progress max="100" height="100%">
-              <b-progress-bar :value="progress.percent" variant="info"></b-progress-bar>
-              <span>{{ progress.percent.toFixed(2) }} %</span>
-            </b-progress>
-          </b-col>
-
-          <b-button @click="kill" class="float-right kill-btn">
-            <i class="fas fa-stop"></i>
-          </b-button>
-        </b-row>
-      </div>
-    </b-container>
   </div>
 </template>
 
@@ -146,6 +149,8 @@ import axios from "axios";
 import toastr from "toastr";
 import langs from "langs";
 import ReconnectingWebSocket from "reconnecting-websocket";
+import path from "path-browserify";
+import oleoo from "oleoo";
 
 export default {
   data() {
@@ -159,7 +164,44 @@ export default {
       ws: null,
       progress: null,
       showModal: false,
+      niceNames: true,
     };
+  },
+  computed: {
+    searchResults() {
+      return this.results.map(file => {
+        if (!this.niceNames) {
+          return { file, name: file.split("/").pop() };
+        }
+
+        const result = {};
+        result.file = file;
+        result.path = path.parse(file);
+        result.scene = oleoo.parse(result.path.name);
+
+        if (result.scene.score < 2) {
+          result.name = result.path.name;
+          return result;
+        }
+
+        switch (result.scene.type) {
+          case "tvshow":
+            const season = String(result.scene.season).padStart(2, "0");
+            const episode = String(result.scene.episode).padStart(2, "0");
+            result.name = `${result.scene.title} S${season}E${episode}`;
+            return result;
+
+          case "movie":
+            const year = result.scene.year ? ` (${result.scene.year})` : "";
+            result.name = `${result.scene.title}${year}`;
+            return result;
+
+          default:
+            result.name = result.path.name;
+            return result;
+        }
+      });
+    },
   },
   methods: {
     getMediaInfo(event) {
@@ -299,6 +341,9 @@ export default {
     },
   },
   watch: {
+    niceNames(value) {
+      localStorage.setItem("niceNames", value);
+    },
     upload(file) {
       const formData = new FormData();
       formData.append("image", file);
@@ -331,6 +376,8 @@ export default {
       toastr.warning("Login or get the Patreon role to visit the streamer!", "Access denied");
       this.$router.push({ name: "Player" });
     }
+
+    this.niceNames = localStorage.getItem("niceNames") ?? true;
   },
 };
 </script>

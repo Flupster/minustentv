@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar type="dark">
+    <b-navbar toggleable="lg" type="dark" variant="dark">
       <b-navbar-brand to="/streamer">MinustenTV</b-navbar-brand>
 
       <b-collapse id="nav-collapse" is-nav>
@@ -11,7 +11,7 @@
       </b-collapse>
     </b-navbar>
 
-    <b-container fluid class="mt-2">
+    <b-container fluid class="mt-4">
       <b-table hover small :items="items" :fields="fields" :busy="isBusy">
         <template v-slot:table-busy>
           <div class="text-center my-4">

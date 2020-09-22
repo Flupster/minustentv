@@ -81,7 +81,6 @@
       ok-title="Stream"
       ok-variant="success"
       cancel-variant="danger"
-      title="title here"
       @ok="streamFile"
       @show="getMediaInfo"
     >

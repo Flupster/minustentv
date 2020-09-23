@@ -1,6 +1,25 @@
 <template>
-  <div id="wrapper">
-    <video id="video" class="video-js" preload="auto" controls></video>
+  <div class="h-100 black-bg">
+    <div v-show="meta.isLive" id="wrapper">
+      <video id="video" class="video-js" preload="auto" controls></video>
+    </div>
+    <div v-if="!meta.isLive && fact" class="h-100">
+      <b-container class="h-100">
+        <b-row class="h-100 justify-content-center align-items-center text-center">
+          <b-row>
+            <b-col md="12 mb-4">
+              <h1>{{ fact.on }}</h1>
+            </b-col>
+            <b-col md="12 mt-4">
+              <h3>{{ fact.description }}</h3>
+            </b-col>
+          </b-row>
+        </b-row>
+      </b-container>
+      <div class="footer text-center text-muted">
+        <span>Nothing is being streamed yet so you get a random event that happened on this day :)</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -40,14 +59,31 @@
 .video-js .vjs-remaining-time {
   display: none;
 }
+
+body,
+html {
+  height: 100%;
+}
 </style>
 
 <style lang="scss" scoped>
 @import "@fortawesome/fontawesome-free/css/all.css";
 @import "video.js/dist/video-js.css";
 
-body {
+body,
+html {
   overflow: hidden;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.black-bg {
+  background-color: black;
 }
 
 .video-dimensions {
@@ -81,6 +117,7 @@ import "videojs-flvjs-es6";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import ViewerButton from "./lib/ViewerButton";
 import AmplifierButton from "./lib/AmplierButton";
+import axios from "axios";
 
 export default {
   data() {
@@ -91,17 +128,28 @@ export default {
       viewerButton: new ViewerButton(),
       ws: null,
       player: null,
+      live: false,
+      fact: null,
     };
   },
   watch: {
+    live(live, old) {
+      if (!live) this.getFact();
+    },
     meta: {
       handler(meta, oldMeta) {
         this.viewerButton.updateViewers(meta.viewers);
+        this.live = meta.islive;
       },
       deep: true,
     },
   },
   methods: {
+    getFact() {
+      axios.get("/api/facts").then(res => {
+        this.fact = res.data;
+      });
+    },
     play(src) {
       if (!src) {
         this.player.src({

@@ -5,7 +5,7 @@
     </div>
     <div v-if="!meta.isLive && fact" class="h-100">
       <b-container class="h-100">
-        <b-row class="h-100 justify-content-center align-items-center text-center">
+        <b-row class="h-100 justify-content-center align-items-center text-center font-italic">
           <b-row>
             <b-col md="12 mb-4">
               <h1>{{ fact.on }}</h1>

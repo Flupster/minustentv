@@ -10,10 +10,10 @@
 
 @import "~toastr/toastr.scss";
 
-@import "typeface-lato/index.css";
+@import "typeface-roboto/index.css";
 
 body {
-  font-family: "Lato" !important;
-  font-weight: 400 !important;
+  font-family: "Roboto" !important;
+  font-weight: 300 !important;
 }
 </style>

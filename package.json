@@ -59,7 +59,7 @@
     "reconnecting-websocket": "^4.4.0",
     "sass": "^1.26.11",
     "toastr": "^2.1.4",
-    "typeface-lato": "0.0.75",
+    "typeface-roboto": "0.0.75",
     "typescript": "^4.0.3",
     "video.js": "^7.8.4",
     "videojs-flvjs-es6": "^1.0.1",

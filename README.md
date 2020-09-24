@@ -4,7 +4,7 @@ copy .env.example to .env and edit
 
 ```
 cp .env.example .env;
-ln -s .env ./app/.env
+ln -s .env ./src/.env
 npm i;
 npm run build;
 npm run start;

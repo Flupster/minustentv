@@ -81,7 +81,7 @@
         </b-row>
       </b-container>
       <div class="footer text-center text-muted">
-        <span>Nothing is being streamed yet so you get a random event that happened on this day :)</span>
+        Nothing is being streamed yet so you get a random event that happened on this day :)
       </div>
     </div>
   </div>
@@ -344,9 +344,7 @@ export default {
     setInterval(this.sync, 1000);
 
     //Load previous intensity
-    this.syncSettings = JSON.parse(
-      localStorage.getItem("sync-settings") ?? JSON.stringify(this.syncSettings)
-    );
+    this.syncSettings = JSON.parse(localStorage.getItem("sync-settings") ?? JSON.stringify(this.syncSettings));
 
     document.addEventListener("keyup", event => {
       if (event.keyCode === 191) {

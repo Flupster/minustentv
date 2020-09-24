@@ -35,7 +35,9 @@
                 v-for="result in searchResults"
                 v-b-modal.stream-modal
                 @click="stream.file = result.file"
-              >{{ result.name }}</b-list-group-item>
+              >
+                {{ result.name }}
+              </b-list-group-item>
             </b-list-group>
           </b-overlay>
         </b-col>

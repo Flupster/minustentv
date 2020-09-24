@@ -68,7 +68,10 @@ export default {
     },
   },
   mounted() {
-    axios.get("/api/history/stream").then(this.onData).catch(this.onError);
+    axios
+      .get("/api/history/stream")
+      .then(this.onData)
+      .catch(this.onError);
   },
   beforeMount() {
     if (!this.$store.state.user) {

@@ -27,9 +27,7 @@ const amplifierComponent = videojs.extend(vjsButton, {
 
   createAmplifier(value) {
     const context = new (AudioContext || webkitAudioContext)();
-    const source = context.createMediaElementSource(
-      this.player.el().children[0]
-    );
+    const source = context.createMediaElementSource(this.player.el().children[0]);
 
     const gain = context.createGain();
     source.connect(gain);

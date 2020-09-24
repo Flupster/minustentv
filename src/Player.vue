@@ -1,7 +1,7 @@
 <template>
   <div class="h-100 black-bg">
     <div>
-      <b-modal v-if="player" id="settings-modal" title="Settings / Info" hide-footer centered>
+      <b-modal v-if="player" ref="settings-modal" title="Settings / Info" hide-footer centered>
         <table class="table table-sm table-borderless">
           <tbody>
             <tr>
@@ -299,7 +299,9 @@ export default {
     this.player.on("ready", () => this.play());
 
     document.addEventListener("keyup", event => {
-      if (event.keyCode === 191) this.$bvModal.show("settings-modal");
+      if (event.keyCode === 191) {
+        this.$refs["settings-modal"].toggle();
+      }
     });
   },
   beforeDestroy() {

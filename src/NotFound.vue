@@ -2,7 +2,7 @@
   <b-container fluid>
     <b-row class="text-center">
       <b-col>
-        <img src="../assets/notfound.gif" />
+        <img src="./assets/404.gif" />
       </b-col>
     </b-row>
     <b-row class="mt-3 text-center">

@@ -1,5 +1,45 @@
 <template>
   <div class="h-100 black-bg">
+    <div>
+      <b-modal v-if="player" id="settings-modal" title="Settings / Info" hide-footer centered>
+        <table class="table table-sm table-borderless">
+          <tbody>
+            <tr>
+              <th scope="row">At Live Edge:</th>
+              <td>{{ this.player.liveTracker.atLiveEdge() }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Current Time:</th>
+              <td>{{ this.player.currentTime().toFixed(3) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Behind Live:</th>
+              <td>{{ (this.player.liveTracker.liveCurrentTime() - this.player.currentTime()).toFixed(3) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Live Time:</th>
+              <td>{{ this.player.liveTracker.liveCurrentTime().toFixed(3) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Last Chunk:</th>
+              <td>{{ this.player.liveTracker.pastSeekEnd().toFixed(3) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Seekable End:</th>
+              <td>{{ this.player.liveTracker.seekableEnd().toFixed(3) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Playback Rate:</th>
+              <td>{{ this.player.playbackRate().toFixed(3) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Current Volume:</th>
+              <td>{{ this.player.volume().toFixed(3) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </b-modal>
+    </div>
     <div v-show="meta.isLive" id="wrapper">
       <video id="video" class="video-js" preload="auto" controls></video>
     </div>
@@ -257,6 +297,10 @@ export default {
 
     // Play when ready
     this.player.on("ready", () => this.play());
+
+    document.addEventListener("keyup", event => {
+      if (event.keyCode === 191) this.$bvModal.show("settings-modal");
+    });
   },
   beforeDestroy() {
     if (this.player) {

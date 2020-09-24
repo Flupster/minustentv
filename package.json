@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "parcel build app/index.html",
-    "watch": "parcel app/index.html"
+    "build": "parcel build ./src/index.html",
+    "watch": "parcel ./src/index.html"
   },
   "keywords": [],
   "author": "Flupster",

@@ -2,8 +2,32 @@
   <div class="h-100 black-bg">
     <div>
       <b-modal v-if="player" ref="settings-modal" title="Settings / Info" hide-footer centered>
+        <b-row>
+          <b-col md="1">
+            <b-form-checkbox v-model="syncSettings.enabled" name="check-button" switch></b-form-checkbox>
+          </b-col>
+          <b-col>
+            <b-form-input
+              style="direction: rtl"
+              v-model="syncSettings.intensity"
+              type="range"
+              min="1"
+              max="100"
+              step="0.5"
+            ></b-form-input>
+          </b-col>
+        </b-row>
+
         <table class="table table-sm table-borderless">
           <tbody>
+            <tr>
+              <th scope="row">Sync Intensity:</th>
+              <td>{{ Math.abs(this.syncSettings.intensity - 100).toFixed(1) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Sync Divider:</th>
+              <td>{{ this.syncSettings.intensity }}</td>
+            </tr>
             <tr>
               <th scope="row">At Live Edge:</th>
               <td>{{ this.player.liveTracker.atLiveEdge() }}</td>
@@ -170,9 +194,19 @@ export default {
       player: null,
       live: false,
       fact: null,
+      syncSettings: { intensity: 30, enabled: true },
     };
   },
   watch: {
+    syncSettings: {
+      handler(settings, old) {
+        localStorage.setItem("sync-settings", JSON.stringify(this.syncSettings));
+        if (!settings.enabled) {
+          this.player.playbackRate(1);
+        }
+      },
+      deep: true,
+    },
     live(live, old) {
       if (!live) this.getFact();
     },
@@ -185,6 +219,14 @@ export default {
     },
   },
   methods: {
+    sync() {
+      if (!this.syncSettings.enabled) return;
+
+      const behind = this.player.liveTracker.liveCurrentTime() - this.player.currentTime();
+      if (behind === Infinity) return;
+
+      this.player.playbackRate(1 + (behind - 3) / this.syncSettings.intensity);
+    },
     getFact() {
       axios.get("/api/facts").then(res => {
         this.fact = res.data;
@@ -297,6 +339,14 @@ export default {
 
     // Play when ready
     this.player.on("ready", () => this.play());
+
+    // Attempt to sync video to 3s behind live
+    setInterval(this.sync, 1000);
+
+    //Load previous intensity
+    this.syncSettings = JSON.parse(
+      localStorage.getItem("sync-settings") ?? JSON.stringify(this.syncSettings)
+    );
 
     document.addEventListener("keyup", event => {
       if (event.keyCode === 191) {

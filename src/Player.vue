@@ -6,11 +6,13 @@
         v-if="player"
         ref="settings-modal"
         title="Settings / Info"
+        size="sm"
         hide-footer
         centered
       >
         <b-row>
-          <b-col md="1">
+          <b-col md="12" class="text-center font-weight-bold mb-2">Sync Settings</b-col>
+          <b-col md="2">
             <b-form-checkbox v-model="syncSettings.enabled" name="check-button" switch></b-form-checkbox>
           </b-col>
           <b-col>
@@ -24,40 +26,33 @@
             ></b-form-input>
           </b-col>
         </b-row>
-
-        <table class="table table-sm table-borderless">
+        <table class="table table-sm table-borderless settings-table mt-2">
           <tbody>
             <tr>
               <th scope="row">Sync Intensity:</th>
               <td>{{ Math.abs(this.syncSettings.intensity - 100).toFixed(1) }}</td>
             </tr>
             <tr>
-              <th scope="row">Sync Divider:</th>
-              <td>{{ this.syncSettings.intensity }}</td>
-            </tr>
-            <tr>
-              <th scope="row">At Live Edge:</th>
-              <td>{{ this.player.liveTracker.atLiveEdge() }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Current Time:</th>
-              <td>{{ this.player.currentTime().toFixed(3) }}</td>
+              <th scope="row">Time/Live Time:</th>
+              <td>
+                {{ this.player.currentTime().toFixed(3) }}
+                ({{ this.player.liveTracker.liveCurrentTime().toFixed(3) }})
+              </td>
             </tr>
             <tr>
               <th scope="row">Behind Live:</th>
-              <td>{{ (this.player.liveTracker.liveCurrentTime() - this.player.currentTime()).toFixed(3) }}</td>
+              <td>
+                {{ (this.player.liveTracker.liveCurrentTime() - this.player.currentTime()).toFixed(3) }}
+                ({{ this.averageBehind.toFixed(3) }})
+              </td>
             </tr>
             <tr>
-              <th scope="row">Live Time:</th>
-              <td>{{ this.player.liveTracker.liveCurrentTime().toFixed(3) }}</td>
+              <th scope="row">Sync Discrepancy:</th>
+              <td>{{ Math.round((this.averageBehind - 3) * 1000) }}ms</td>
             </tr>
             <tr>
               <th scope="row">Last Chunk:</th>
               <td>{{ this.player.liveTracker.pastSeekEnd().toFixed(3) }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Seekable End:</th>
-              <td>{{ this.player.liveTracker.seekableEnd().toFixed(3) }}</td>
             </tr>
             <tr>
               <th scope="row">Playback Rate:</th>
@@ -98,6 +93,10 @@
 .settings-modal {
   background-color: rgba(0, 0, 0, 0.7);
   border: unset;
+}
+
+.settings-table td {
+  text-align: right !important;
 }
 
 .vjs-control-amplifier {
@@ -206,8 +205,14 @@ export default {
       player: null,
       live: false,
       fact: null,
+      syncBehinds: [],
       syncSettings: { intensity: 30, enabled: true },
     };
+  },
+  computed: {
+    averageBehind() {
+      return this.syncBehinds.length === 0 ? 0 : this.syncBehinds.reduce((a, b) => a + b) / this.syncBehinds.length;
+    },
   },
   watch: {
     syncSettings: {
@@ -238,6 +243,11 @@ export default {
       if (behind === Infinity) return;
 
       this.player.playbackRate(1 + (behind - 3) / this.syncSettings.intensity);
+
+      if (this.syncBehinds.length >= 5) {
+        this.syncBehinds.shift();
+      }
+      this.syncBehinds.push(behind);
     },
     getFact() {
       axios.get("/api/facts").then(res => {

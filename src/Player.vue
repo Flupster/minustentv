@@ -1,7 +1,14 @@
 <template>
   <div class="h-100 black-bg">
     <div>
-      <b-modal v-if="player" ref="settings-modal" title="Settings / Info" hide-footer centered>
+      <b-modal
+        content-class="settings-modal"
+        v-if="player"
+        ref="settings-modal"
+        title="Settings / Info"
+        hide-footer
+        centered
+      >
         <b-row>
           <b-col md="1">
             <b-form-checkbox v-model="syncSettings.enabled" name="check-button" switch></b-form-checkbox>
@@ -88,6 +95,11 @@
 </template>
 
 <style>
+.settings-modal {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: unset;
+}
+
 .vjs-control-amplifier {
   font-size: 1.4em !important;
 }

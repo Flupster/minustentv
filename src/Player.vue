@@ -1,5 +1,6 @@
 <template>
   <div class="h-100 black-bg">
+    <!-- settings modal -->
     <div>
       <b-modal
         content-class="settings-modal"
@@ -12,62 +13,53 @@
         <b-row>
           <b-col md="12" class="text-center font-weight-bold mb-2">Sync Settings</b-col>
           <b-col md="1">
-            <b-form-checkbox v-model="syncSettings.enabled" name="check-button" switch></b-form-checkbox>
+            <b-form-checkbox v-model="syncerSettings.enabled" name="check-button" switch></b-form-checkbox>
           </b-col>
           <b-col>
-            <b-form-input
-              style="direction: rtl"
-              v-model="syncSettings.intensity"
-              type="range"
-              min="1"
-              max="100"
-              step="0.5"
-            ></b-form-input>
+            <b-form-input style="direction: rtl" v-model="syncerSettings.intensity" type="range" min="1" max="100">
+            </b-form-input>
           </b-col>
         </b-row>
+
         <table class="table table-sm table-borderless settings-table mt-2">
           <tbody>
             <tr>
               <th scope="row">Sync Intensity:</th>
-              <td>{{ Math.abs(this.syncSettings.intensity - 100).toFixed(1) }}</td>
+              <td colspan="2">{{ Math.abs(this.syncer.intensity - 100).toFixed(1) }}</td>
             </tr>
             <tr>
               <th scope="row">Time/Live Time:</th>
-              <td>
-                {{ this.player.currentTime().toFixed(3) }}
-                ({{ this.player.liveTracker.liveCurrentTime().toFixed(3) }})
-              </td>
+              <td>{{ this.player.currentTime().toFixed(3) }}</td>
+              <td>{{ this.player.liveTracker.liveCurrentTime().toFixed(3) }}</td>
             </tr>
             <tr>
               <th scope="row">Behind Live:</th>
-              <td>
-                {{ (this.player.liveTracker.liveCurrentTime() - this.player.currentTime()).toFixed(3) }}
-                ({{ this.averageBehind.toFixed(3) }})
-              </td>
+              <td>{{ (this.player.liveTracker.liveCurrentTime() - this.player.currentTime()).toFixed(3) }}</td>
+              <td>{{ this.syncer.average.toFixed(3) }}</td>
             </tr>
             <tr>
               <th scope="row">Sync Deviation:</th>
-              <td>{{ Math.round((this.averageBehind - 3) * 1000) }}ms</td>
+              <td>{{ Math.round(this.syncer.deviation * 1000) }} ms</td>
+              <td>{{ Math.round(this.syncer.averageDeviation * 1000) }} ms</td>
             </tr>
             <tr>
               <th scope="row">Last Chunk:</th>
-              <td>{{ this.player.liveTracker.pastSeekEnd().toFixed(3) }}</td>
+              <td colspan="2">{{ this.player.liveTracker.pastSeekEnd().toFixed(3) }}</td>
             </tr>
             <tr>
               <th scope="row">Playback Rate:</th>
-              <td>{{ this.player.playbackRate().toFixed(3) }}</td>
+              <td colspan="2">{{ this.player.playbackRate().toFixed(3) }}</td>
             </tr>
             <tr>
               <th scope="row">Current Volume:</th>
-              <td>{{ this.player.volume().toFixed(3) }}</td>
+              <td colspan="2">{{ this.player.volume().toFixed(3) }}</td>
             </tr>
           </tbody>
         </table>
       </b-modal>
     </div>
-    <div v-show="meta.isLive" id="wrapper">
-      <video id="video" class="video-js" preload="auto" controls></video>
-    </div>
+
+    <!-- fact display -->
     <div v-if="!meta.isLive && fact" class="h-100">
       <b-container class="h-100">
         <b-row class="h-100 justify-content-center align-items-center text-center font-italic">
@@ -84,6 +76,11 @@
       <div class="footer text-center text-muted">
         Nothing is being streamed yet so you get a random event that happened on this day :)
       </div>
+    </div>
+
+    <!-- video -->
+    <div id="wrapper" v-show="meta.isLive">
+      <video id="video" class="video-js" preload="auto" controls></video>
     </div>
   </div>
 </template>
@@ -191,6 +188,7 @@ import "videojs-flvjs-es6";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import ViewerButton from "./lib/ViewerButton";
 import AmplifierButton from "./lib/AmplierButton";
+import Syncer from "./lib/Syncer";
 import axios from "axios";
 
 export default {
@@ -204,22 +202,19 @@ export default {
       player: null,
       live: false,
       fact: null,
-      syncBehinds: [],
-      syncSettings: { intensity: 30, enabled: true },
+      syncer: null,
+      syncerSettings: {
+        intensity: 30,
+        enabled: true,
+      },
     };
   },
-  computed: {
-    averageBehind() {
-      return this.syncBehinds.length === 0 ? 0 : this.syncBehinds.reduce((a, b) => a + b) / this.syncBehinds.length;
-    },
-  },
   watch: {
-    syncSettings: {
+    syncerSettings: {
       handler(settings, old) {
-        localStorage.setItem("sync-settings", JSON.stringify(this.syncSettings));
-        if (!settings.enabled) {
-          this.player.playbackRate(1);
-        }
+        localStorage.setItem("syncer-settings", JSON.stringify(settings));
+        this.syncer.intensity = settings.intensity;
+        settings.enabled ? this.syncer.enable() : this.syncer.disable();
       },
       deep: true,
     },
@@ -235,19 +230,6 @@ export default {
     },
   },
   methods: {
-    sync() {
-      if (!this.syncSettings.enabled) return;
-
-      const behind = this.player.liveTracker.liveCurrentTime() - this.player.currentTime();
-      if (behind === Infinity) return;
-
-      this.player.playbackRate(1 + (behind - 3) / this.syncSettings.intensity);
-
-      if (this.syncBehinds.length >= 5) {
-        this.syncBehinds.shift();
-      }
-      this.syncBehinds.push(behind);
-    },
     getFact() {
       axios.get("/api/facts").then(res => {
         this.fact = res.data;
@@ -361,11 +343,9 @@ export default {
     // Play when ready
     this.player.on("ready", () => this.play());
 
-    // Attempt to sync video to 3s behind live
-    setInterval(this.sync, 1000);
-
-    //Load previous intensity
-    this.syncSettings = JSON.parse(localStorage.getItem("sync-settings") ?? JSON.stringify(this.syncSettings));
+    // Attach Syncers
+    this.syncer = new Syncer(this.player);
+    this.syncerSettings = JSON.parse(localStorage.getItem("syncer-settings") ?? JSON.stringify(this.syncerSettings));
 
     document.addEventListener("keyup", event => {
       if (event.keyCode === 191) {

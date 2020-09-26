@@ -6,13 +6,12 @@
         v-if="player"
         ref="settings-modal"
         title="Settings / Info"
-        size="sm"
         hide-footer
         centered
       >
         <b-row>
           <b-col md="12" class="text-center font-weight-bold mb-2">Sync Settings</b-col>
-          <b-col md="2">
+          <b-col md="1">
             <b-form-checkbox v-model="syncSettings.enabled" name="check-button" switch></b-form-checkbox>
           </b-col>
           <b-col>
@@ -47,7 +46,7 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">Sync Discrepancy:</th>
+              <th scope="row">Sync Deviation:</th>
               <td>{{ Math.round((this.averageBehind - 3) * 1000) }}ms</td>
             </tr>
             <tr>

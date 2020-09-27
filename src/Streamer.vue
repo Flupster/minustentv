@@ -12,12 +12,13 @@
 
         <b-navbar-nav class="ml-auto">
           <!-- Inputs -->
-          <b-nav-form>
+          <b-nav-form v-on:submit.prevent v-on:keyup.enter="findMedia">
             <b-form-checkbox class="mr-4" v-model="niceNames" switch>Nice Names</b-form-checkbox>
             <b-form-input
               v-model="search"
               placeholder="Search..."
               class="text-center nav-search"
+              autocomplete="off"
               autofocus
             ></b-form-input>
           </b-nav-form>
@@ -203,6 +204,14 @@ export default {
     },
   },
   methods: {
+    findMedia() {
+      this.searchLoading = true;
+      axios
+        .post("/api/streamer/search", { search: this.search })
+        .then(r => (this.results = r.data))
+        .catch(e => toastr.error(e.response.data.error, "Search error"))
+        .finally(() => (this.searchLoading = false));
+    },
     getMediaInfo(event) {
       axios
         .get("/api/streamer/mediainfo", { params: { file: this.stream.file } })
@@ -357,12 +366,7 @@ export default {
     },
     search(search) {
       if (search.length > 3) {
-        this.searchLoading = true;
-        axios
-          .post("/api/streamer/search", { search })
-          .then(r => (this.results = r.data))
-          .catch(e => toastr.error(e.response.data.error, "Search error"))
-          .finally(() => (this.searchLoading = false));
+        this.findMedia();
       }
     },
   },

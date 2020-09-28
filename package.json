@@ -14,7 +14,8 @@
     "build": "npx parcel build ./src/index.html",
     "dev": "npx nodemon server.js",
     "start": "node server.js",
-    "watch": "npx parcel ./src/index.html"
+    "watch": "npx parcel ./src/index.html",
+    "cache-media": "node ./cli/cachemedia.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.14.0",
@@ -24,6 +25,7 @@
     "bootstrap-vue": "^2.17.3",
     "bootswatch": "^4.5.2",
     "busboy": "^0.3.1",
+    "cli-progress": "^3.8.2",
     "compression": "^1.7.4",
     "connect-mongodb-session": "^2.4.1",
     "cookie-parser": "^1.4.5",

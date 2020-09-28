@@ -341,7 +341,13 @@ export default {
     });
 
     // Play when ready
-    this.player.on("ready", () => this.play());
+    this.player.on("ready", () => {
+      if (this.ws.readyState === 0) {
+        this.ws.onopen = () => this.play();
+      } else {
+        this.play();
+      }
+    });
 
     // Attach Syncers
     this.syncer = new Syncer(this.player);

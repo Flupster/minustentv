@@ -20,7 +20,7 @@ app.use(passport.session());
 app.use(morgan("combined"));
 app.use(express.static("dist"));
 app.use(express.json({ limit: "10kb" }));
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cookieParser());
 app.use(compression());
 app.use(authRoutes);
@@ -30,6 +30,7 @@ app.use(require("./middleware/error"));
 // connect to DB
 mongoose
   .connect(process.env.DB_CONNECT, {
+    useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

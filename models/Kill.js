@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const KillSchema = new mongoose.Schema({
-  discordId: String,
+  discordId: { type: String, index: true },
   date: { type: Date, default: Date.now },
 });
 

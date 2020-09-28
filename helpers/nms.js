@@ -47,16 +47,10 @@ class Nms extends Emitter {
   }
 
   async getStreamInfo(channel) {
-    try {
-      const req = await axios.get(
-        process.env.NMS_URL + "api/streams/live/" + channel
-      );
-      this.channels[channel] = req.data;
-      this.emit("streamInfo", { channel, meta: req.data });
-      return req.data;
-    } catch (ex) {
-      return ex;
-    }
+    const req = await axios.get(process.env.NMS_URL + "api/streams/live/" + channel);
+    this.channels[channel] = req.data;
+    this.emit("streamInfo", { channel, meta: req.data });
+    return req.data;
   }
 }
 

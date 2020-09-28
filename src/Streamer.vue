@@ -80,36 +80,80 @@
     <b-modal
       id="stream-modal"
       centered
-      size="lg"
+      size="xl"
       ok-title="Stream"
       ok-variant="success"
       cancel-variant="danger"
+      content-class="streamer-modal"
       @ok="streamFile"
-      @show="getMediaInfo"
+      @show="getMeta"
     >
-      <b-form-group label-cols-sm="2" label-cols-lg="2" label="File Path">
-        <b-form-input v-model="stream.file" disabled></b-form-input>
-      </b-form-group>
-      <b-form-group label-cols-sm="2" label-cols-lg="2" label="Start Time">
-        <b-form-input v-model="stream.start"></b-form-input>
-      </b-form-group>
-      <b-form-group label-cols-sm="2" label-cols-lg="2" label="Resolution">
-        <b-form-select v-model="stream.resolution" :options="tracks.resolution"></b-form-select>
-      </b-form-group>
-      <b-form-group label-cols-sm="2" label-cols-lg="2" label="Video">
-        <b-form-select v-model="stream.video" :options="tracks.video"></b-form-select>
-      </b-form-group>
-      <b-form-group label-cols-sm="2" label-cols-lg="2" label="Audio">
-        <b-form-select v-model="stream.audio" :options="tracks.audio"></b-form-select>
-      </b-form-group>
-      <b-form-group label-cols-sm="2" label-cols-lg="2" label="Subtitles">
-        <b-form-select v-model="stream.subtitle" :options="tracks.subtitle"></b-form-select>
-      </b-form-group>
+      <b-row>
+        <b-col md="4" v-if="meta && meta.tmdb">
+          <b-row class="h-100 align-items-center">
+            <b-col>
+              <b-img class="poster-img" :src="posterSrc"></b-img>
+            </b-col>
+          </b-row>
+        </b-col>
+        <b-col>
+          <b-row class="h-100">
+            <b-col v-if="meta && meta.tmdb" md="12">
+              <b-row class="align-items-center">
+                <b-col md="9">
+                  <h3>
+                    {{ meta.tmdb.title || meta.tmdb.original_name }}
+                    <span v-if="meta.scene.year">({{ meta.scene.year }})</span>
+                  </h3>
+                </b-col>
+                <b-col md="3 text-right">
+                  <span>{{ meta.tmdb.vote_average }} / 10 <i class="fas fa-star"></i></span>
+                </b-col>
+                <b-col md="12">
+                  <p>{{ meta.tmdb.overview }}</p>
+                </b-col>
+              </b-row>
+            </b-col>
+            <b-col md="12" class="align-self-end">
+              <b-form-group label-cols-sm="2" label-cols-lg="2" label="Start Time">
+                <b-form-input v-model="stream.start"></b-form-input>
+              </b-form-group>
+              <b-form-group label-cols-sm="2" label-cols-lg="2" label="Resolution">
+                <b-form-select v-model="stream.resolution" :options="tracks.resolution"></b-form-select>
+              </b-form-group>
+              <b-form-group label-cols-sm="2" label-cols-lg="2" label="Video">
+                <b-form-select v-model="stream.video" :options="tracks.video"></b-form-select>
+              </b-form-group>
+              <b-form-group label-cols-sm="2" label-cols-lg="2" label="Audio">
+                <b-form-select v-model="stream.audio" :options="tracks.audio"></b-form-select>
+              </b-form-group>
+              <b-form-group label-cols-sm="2" label-cols-lg="2" label="Subtitles">
+                <b-form-select v-model="stream.subtitle" :options="tracks.subtitle"></b-form-select>
+              </b-form-group>
+            </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
     </b-modal>
   </div>
 </template>
 
 <style>
+.poster-img {
+  box-shadow: 0 0 25px 0px gray;
+}
+
+.streamer-modal .modal-body {
+  z-index: 2;
+}
+
+.streamer-modal .modal-footer {
+  z-index: 2;
+}
+.streamer-modal .modal-body img {
+  width: 100%;
+}
+
 .kill-btn {
   position: absolute;
   right: 0;
@@ -162,12 +206,16 @@ export default {
       stream: {},
       results: [],
       ws: null,
+      meta: null,
       progress: null,
       showModal: false,
       niceNames: true,
     };
   },
   computed: {
+    posterSrc() {
+      return "https://image.tmdb.org/t/p/original" + this.meta.tmdb.poster_path;
+    },
     searchResults() {
       return this.results.map(file => {
         if (!this.niceNames) {
@@ -212,10 +260,12 @@ export default {
         .catch(e => toastr.error(e.response.data.error, "Search error"))
         .finally(() => (this.searchLoading = false));
     },
-    getMediaInfo(event) {
+    getMeta(event) {
+      this.meta = {};
       axios
-        .get("/api/streamer/mediainfo", { params: { file: this.stream.file } })
+        .get("/api/streamer/meta", { params: { file: this.stream.file } })
         .then(r => {
+          this.meta = r.data;
           this.stream = {
             file: this.stream.file,
             start: "00:00:00",
@@ -235,12 +285,12 @@ export default {
             ],
           };
 
-          const vt = r.data.streams.filter(s => s.codec_type === "video")[0];
+          const vt = r.data.mediainfo.streams.filter(s => s.codec_type === "video")[0];
           if (vt.height && vt.height > 720) {
             this.tracks.resolution.push({ value: 1080, text: "1080p" });
           }
 
-          r.data.streams.forEach(stream => {
+          r.data.mediainfo.streams.forEach(stream => {
             const language = langs.where("2B", stream.tags?.language);
             const text = stream.tags?.title ?? language?.name ?? "Unknown";
 

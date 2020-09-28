@@ -2,7 +2,6 @@ const rrdir = require("rrdir");
 const Fuse = require("fuse.js");
 const axios = require("axios");
 const path = require("path");
-const Ffmpeg = require("fluent-ffmpeg");
 const StreamModel = require("../models/Stream");
 const KillModel = require("../models/Kill");
 const YoutubeDlWrap = require("youtube-dl-wrap");
@@ -11,6 +10,8 @@ const Wss = require("../helpers/wss");
 const Busboy = require("busboy");
 const router = require("express").Router();
 const canStream = require("../middleware/canStream");
+const Media = require("../models/Media");
+const Meta = require("../helpers/meta");
 
 //attach canStream middleware for verified user access
 router.use(canStream);
@@ -94,11 +95,15 @@ router.delete("/:channel", (req, res) => {
 });
 
 //Media Info
-router.get("/mediainfo", (req, res) => {
-  Ffmpeg.ffprobe(req.query.file, (e, meta) => {
-    if (e) return res.status(500).json({ error: e });
-    res.status(200).json(meta);
-  });
+router.get("/meta", async (req, res) => {
+  const media = await Media.findByFile(req.query.file);
+  if (media) {
+    return res.status(200).json(media);
+  } else {
+    const meta = await Meta.getMeta(req.query.file);
+    new Media(meta).updateOrCreate();
+    return res.status(200).json(meta);
+  }
 });
 
 router.ws("/", (req, res) => {});

@@ -56,6 +56,15 @@
             </tr>
           </tbody>
         </table>
+
+        <b-row>
+          <b-col md="1">
+            <b-form-checkbox v-model="stretch" name="check-button" switch></b-form-checkbox>
+          </b-col>
+          <b-col>
+            <span class="font-weight-bold">Stretch Video</span>
+          </b-col>
+        </b-row>
       </b-modal>
     </div>
 
@@ -86,6 +95,10 @@
 </template>
 
 <style>
+.fill-video {
+  object-fit: fill;
+}
+
 .settings-modal {
   background-color: rgba(0, 0, 0, 0.7);
   border: unset;
@@ -203,6 +216,7 @@ export default {
       live: false,
       fact: null,
       syncer: null,
+      stretch: false,
       syncerSettings: {
         intensity: 30,
         enabled: true,
@@ -210,6 +224,11 @@ export default {
     };
   },
   watch: {
+    stretch(stretch) {
+      localStorage.setItem("stretch-video", stretch);
+      const el = this.player.el().children[0];
+      stretch ? el.classList.add("fill-video") : el.classList.remove("fill-video");
+    },
     syncerSettings: {
       handler(settings, old) {
         localStorage.setItem("syncer-settings", JSON.stringify(settings));
@@ -352,6 +371,9 @@ export default {
     // Attach Syncers
     this.syncer = new Syncer(this.player);
     this.syncerSettings = JSON.parse(localStorage.getItem("syncer-settings") ?? JSON.stringify(this.syncerSettings));
+
+    // Load default video stretch
+    this.stretch = localStorage.getItem("stretch-video") === "true";
 
     document.addEventListener("keyup", event => {
       if (event.keyCode === 191) {

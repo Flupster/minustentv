@@ -19,6 +19,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(morgan("combined"));
 app.use(express.static("dist"));
+app.use(express.static("public"));
 app.use(express.json({ limit: "10kb" }));
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cookieParser());

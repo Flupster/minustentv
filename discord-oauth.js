@@ -12,6 +12,7 @@ const store = new MongoDBStore({
 });
 
 const session = Session({
+  name: "sid",
   secret: process.env.TOKEN_SECRET,
   cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 },
   store,
@@ -46,8 +47,8 @@ Refresh.use(Strategy);
 
 store.on("error", e => console.error("store error", e));
 
-router.get("/auth/discord", passport.authenticate("discord"), (req, res) => res.redirect("/"));
-router.get("/auth/login", passport.authenticate("discord"), (req, res) => {});
+router.get("/auth/discord", passport.authenticate("discord"), (req, res) => res.redirect("/login"));
+router.get("/auth/login", passport.authenticate("discord"));
 router.get("/auth/logout", (req, res) => {
   req.logout();
   res.redirect("/");

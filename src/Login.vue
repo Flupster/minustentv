@@ -9,7 +9,7 @@ export default {
     if (this.$store.state.user) {
       this.$router.push({ name: "Streamer" });
     } else {
-      window.location.href = process.env.BASE_URL + "/auth/login";
+      window.location.href = process.env.BASE_URL + "auth/login";
     }
   },
 };

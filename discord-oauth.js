@@ -47,7 +47,7 @@ Refresh.use(Strategy);
 
 store.on("error", e => console.error("store error", e));
 
-router.get("/auth/discord", passport.authenticate("discord"), (req, res) => res.redirect("/login"));
+router.get("/auth/discord", passport.authenticate("discord"), (req, res) => res.redirect("/streamer"));
 router.get("/auth/login", passport.authenticate("discord"));
 router.get("/auth/logout", (req, res) => {
   req.logout();

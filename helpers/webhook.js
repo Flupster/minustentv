@@ -33,5 +33,5 @@ exports.send = async function(file, issuer) {
     ])
     .setTimestamp();
 
-  return hook.send(embed);
+  return hook.send(`${title} is being blazed by ${issuer}! @here ${process.env.BASE_URL}`, { embeds: [embed] });
 };

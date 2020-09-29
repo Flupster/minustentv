@@ -12,6 +12,7 @@ const router = require("express").Router();
 const canStream = require("../middleware/canStream");
 const Media = require("../models/Media");
 const Meta = require("../helpers/meta");
+const Webhook = require("../helpers/webhook");
 
 //attach canStream middleware for verified user access
 router.use(canStream);
@@ -32,6 +33,7 @@ router.post("/search", async (req, res) => {
 
 // /api/streamer/stream/file stream a file from local fs
 router.post("/stream/file", async (req, res) => {
+  Webhook.send(req.body.file, req.user.username).catch(console.error);
   StartStream(req, res, req.body.file);
 
   new StreamModel({

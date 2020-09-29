@@ -3,7 +3,7 @@ const Media = require("../models/Media");
 
 const hook = new Discord.WebhookClient(process.env.DISCORD_WEBHOOK_ID, process.env.DISCORD_WEBHOOK_KEY);
 
-exports.send = async function sendEmbed(file, issuer) {
+exports.send = async function(file, issuer) {
   const doc = await Media.findOne({ file });
   if (!doc || !doc.tmdb) {
     throw "Could not find meta for file: " + file;

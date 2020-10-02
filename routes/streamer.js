@@ -33,7 +33,10 @@ router.post("/search", async (req, res) => {
 
 // /api/streamer/stream/file stream a file from local fs
 router.post("/stream/file", async (req, res) => {
-  Webhook.send(req.body.file, req.user.username).catch(console.error);
+  if (req.body.notifyDiscord) {
+    Webhook.send(req.body.file, req.user.username).catch(console.error);
+  }
+
   StartStream(req, res, req.body.file);
 
   new StreamModel({
@@ -103,7 +106,7 @@ router.get("/meta", async (req, res) => {
     return res.status(200).json(media);
   } else {
     const meta = await Meta.getMeta(req.query.file);
-    new Media(meta).updateOrCreate();
+    Media.createOrUpdate({ file: req.query.file }, meta);
     return res.status(200).json(meta);
   }
 });

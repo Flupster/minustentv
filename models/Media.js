@@ -18,10 +18,4 @@ MediaSchema.statics.findByFile = async function(file) {
   else return doc;
 };
 
-MediaSchema.methods.updateOrCreate = async function() {
-  const Model = this.model("Media");
-  const doc = await Model.findOne({ file: this.file });
-  return doc ? doc.updateOne(doc, this) : new Model(this).save();
-};
-
 module.exports = mongoose.model("Media", MediaSchema);

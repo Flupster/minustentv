@@ -13,6 +13,7 @@
         <b-navbar-nav class="ml-auto">
           <!-- Inputs -->
           <b-nav-form v-on:submit.prevent v-on:keyup.enter="findMedia">
+            <b-form-checkbox class="mr-4" v-model="notifyDiscord" switch>Notify Discord</b-form-checkbox>
             <b-form-checkbox class="mr-4" v-model="niceNames" switch>Nice Names</b-form-checkbox>
             <b-form-input
               v-model="search"
@@ -210,6 +211,7 @@ export default {
       progress: null,
       showModal: false,
       niceNames: true,
+      notifyDiscord: true,
     };
   },
   computed: {
@@ -391,7 +393,7 @@ export default {
     streamFile() {
       this.search = "";
       axios
-        .post("/api/streamer/stream/file", this.stream)
+        .post("/api/streamer/stream/file", { notifyDiscord: this.notifyDiscord, ...this.stream })
         .then(r => {
           toastr.success(`PID: ${r.data.pid}`, "Stream started");
         })
@@ -401,6 +403,9 @@ export default {
   watch: {
     niceNames(value) {
       localStorage.setItem("niceNames", value);
+    },
+    notifyDiscord(value) {
+      localStorage.setItem("notifyDiscord", value);
     },
     upload(file) {
       const formData = new FormData();
@@ -430,7 +435,8 @@ export default {
       this.$router.push({ name: "Player" });
     }
 
-    this.niceNames = localStorage.getItem("niceNames") ?? true;
+    this.notifyDiscord = localStorage.getItem("notifyDiscord") == "true";
+    this.niceNames = localStorage.getItem("niceNames") == "true";
   },
 };
 </script>

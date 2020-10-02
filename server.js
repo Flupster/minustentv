@@ -27,6 +27,7 @@ app.use(compression());
 app.use(authRoutes);
 app.use("/", require("./routes/index"));
 app.use(require("./middleware/error"));
+mongoose.plugin(require("./helpers/createOrUpdate"));
 
 // connect to DB
 mongoose

@@ -1,14 +1,17 @@
 const mongoose = require("mongoose");
 const fs = require("fs");
 
-const Media = new mongoose.Schema({
-  file: { type: String, index: true },
-  modified: Date,
-  scene: Object,
-  mediainfo: Object,
-  tmdb: Object,
-  date: { type: Date, default: Date.now },
-});
+const Media = new mongoose.Schema(
+  {
+    file: { type: String, index: true },
+    modified: Date,
+    scene: Object,
+    mediainfo: Object,
+    tmdb: Object,
+    date: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
+);
 
 Media.statics.findByFile = async function(file) {
   const stat = fs.statSync(file);

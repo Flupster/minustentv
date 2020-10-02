@@ -18,4 +18,17 @@ Media.statics.findByFile = async function(file) {
   else return doc;
 };
 
+Media.methods.hasChanged = async function() {
+  const stat = fs.statSync(this.file);
+  return this.modified.getTime() !== stat.mtime.getTime();
+};
+
+Media.methods.isMovie = function() {
+  return this.scene.type === "movie";
+};
+
+Media.methods.isTvShow = function() {
+  return this.scene.type === "tvshow";
+};
+
 module.exports = mongoose.model("Media", Media);

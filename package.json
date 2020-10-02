@@ -15,7 +15,7 @@
     "dev": "yarn run nodemon server.js",
     "start": "node server.js",
     "watch": "yarn run parcel ./src/index.html",
-    "cache-media": "node ./cli/cachemedia.js"
+    "update-media": "node ./cli/update-media.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.0",

@@ -3,6 +3,8 @@ const oleoo = require("oleoo");
 const ffmpeg = require("fluent-ffmpeg");
 const axios = require("axios");
 const path = require("path");
+const Movie = require("../models/Movie");
+const TvShow = require("../models/TvShow");
 
 const TmdbInstance = axios.create({
   baseURL: "https://api.themoviedb.org/3/",
@@ -26,7 +28,7 @@ exports.getTMDB = async function(file) {
     params: { query: scene.title, year: scene.year },
   });
 
-  return request.data.results.length > 0 ? request.data.results[0] : null;
+  return request.data.results[0];
 };
 
 exports.getMeta = async function(file) {

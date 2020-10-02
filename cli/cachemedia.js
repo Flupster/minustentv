@@ -34,7 +34,7 @@ async function start() {
 
     try {
       const media = await meta.getMeta(file.path);
-      new Media(media).save();
+      Media.updateOrCreate({ file: file.path }, media);
       bar.increment();
     } catch (e) {
       console.log(e);

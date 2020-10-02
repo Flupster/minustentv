@@ -11,14 +11,14 @@
   "author": "Flupster",
   "main": "server.js",
   "scripts": {
-    "build": "npx parcel build ./src/index.html",
-    "dev": "npx nodemon server.js",
+    "build": "yarn run parcel build ./src/index.html",
+    "dev": "yarn run nodemon server.js",
     "start": "node server.js",
-    "watch": "npx parcel ./src/index.html",
+    "watch": "yarn run parcel ./src/index.html",
     "cache-media": "node ./cli/cachemedia.js"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.14.0",
+    "@fortawesome/fontawesome-free": "^5.15.0",
     "axios": "^0.20.0",
     "bcrypt": "^5.0.0",
     "bootstrap": "^4.5.2",
@@ -53,7 +53,7 @@
     "rrdir": "^8.1.1",
     "toastr": "^2.1.4",
     "typeface-roboto": "0.0.75",
-    "video.js": "^7.9.5",
+    "video.js": "^7.9.6",
     "videojs-flvjs-es6": "^1.0.1",
     "vue": "^2.6.12",
     "vue-router": "^3.4.5",

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
-const KillSchema = new mongoose.Schema({
+const Kill = new mongoose.Schema({
   discordId: { type: String, index: true },
   date: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Kill", KillSchema);
+module.exports = mongoose.model("Kill", Kill);

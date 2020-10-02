@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const fs = require("fs");
 
-const MediaSchema = new mongoose.Schema({
+const Media = new mongoose.Schema({
   file: { type: String, index: true },
   modified: Date,
   scene: Object,
@@ -10,7 +10,7 @@ const MediaSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
 });
 
-MediaSchema.statics.findByFile = async function(file) {
+Media.statics.findByFile = async function(file) {
   const stat = fs.statSync(file);
   const doc = await this.findOne({ file });
 
@@ -18,4 +18,4 @@ MediaSchema.statics.findByFile = async function(file) {
   else return doc;
 };
 
-module.exports = mongoose.model("Media", MediaSchema);
+module.exports = mongoose.model("Media", Media);

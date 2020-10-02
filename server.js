@@ -30,7 +30,7 @@ app.use(passport.session());
 app.use(require("morgan")("combined"));
 app.use(express.static("dist"));
 app.use(express.static("public"));
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "1mb" }));
 app.use(require("helmet")({ contentSecurityPolicy: false }));
 app.use(require("cookie-parser")());
 app.use(require("compression")());

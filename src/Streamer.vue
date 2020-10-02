@@ -38,7 +38,15 @@
                 v-b-modal.stream-modal
                 @click="stream.file = result.file"
               >
-                {{ result.name }}
+                <b-row>
+                  <b-col> {{ result.name }}</b-col>
+                  <b-col v-if="result.tmdb" sm="4" class="text-right">
+                    <span class="mr-2">
+                      <i class="fas fa-clock"></i> {{ Math.round(result.mediainfo.format.duration / 60) }} min
+                    </span>
+                    <span><i class="fas fa-star"></i> {{ result.tmdb.vote_average.toFixed(1) }}</span>
+                  </b-col>
+                </b-row>
               </b-list-group-item>
             </b-list-group>
           </b-overlay>
@@ -194,7 +202,6 @@ import axios from "axios";
 import toastr from "toastr";
 import langs from "langs";
 import ReconnectingWebSocket from "reconnecting-websocket";
-import path from "path-browserify";
 import oleoo from "oleoo";
 
 export default {
@@ -216,39 +223,34 @@ export default {
   },
   computed: {
     posterSrc() {
-      return "https://image.tmdb.org/t/p/original" + this.meta.tmdb.poster_path;
+      return "https://image.tmdb.org/t/p/w500" + this.meta.tmdb.poster_path;
     },
     searchResults() {
-      return this.results.map(file => {
-        if (!this.niceNames) {
-          return { file, name: file.split("/").pop() };
+      return this.results.map(meta => {
+        if (!meta.scene) {
+          meta.scene = oleoo.parse(meta.file.split("/").pop());
         }
 
-        const result = {};
-        result.file = file;
-        result.path = path.parse(file);
-        result.scene = oleoo.parse(result.path.name);
-
-        if (result.scene.score < 2) {
-          result.name = result.path.name;
-          return result;
+        if (!this.niceNames || !meta.scene || meta.scene.score < 2) {
+          meta.name = meta.file.split("/").pop();
+          return meta;
         }
 
-        switch (result.scene.type) {
+        switch (meta.scene.type) {
           case "tvshow":
-            const season = String(result.scene.season).padStart(2, "0");
-            const episode = String(result.scene.episode).padStart(2, "0");
-            result.name = `${result.scene.title} S${season}E${episode}`;
-            return result;
+            const season = String(meta.scene.season).padStart(2, "0");
+            const episode = String(meta.scene.episode).padStart(2, "0");
+            meta.name = `${meta.scene.title} S${season}E${episode}`;
+            return meta;
 
           case "movie":
-            const year = result.scene.year ? ` (${result.scene.year})` : "";
-            result.name = `${result.scene.title}${year}`;
-            return result;
+            const year = meta.scene.year ? ` (${meta.scene.year})` : "";
+            meta.name = `${meta.scene.title}${year}`;
+            return meta;
 
           default:
-            result.name = result.path.name;
-            return result;
+            meta.name = meta.file.split("/").pop();
+            return meta;
         }
       });
     },

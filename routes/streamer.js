@@ -19,16 +19,19 @@ router.use(canStream);
 
 // /api/streamer/search search for files
 router.post("/search", async (req, res) => {
-  rrdir
-    .async(process.env.MEDIA_DIR, {
-      exclude: ["**/.*"],
-      include: [process.env.MEDIA_GLOB],
-    })
-    .then(files => {
-      const fuse = new Fuse(files.map(f => f.path));
-      const search = fuse.search(req.body.search);
-      res.status(200).json(search.map(s => s.item));
-    });
+  const files = await rrdir.async(process.env.MEDIA_DIR, {
+    exclude: ["**/.*"],
+    include: [process.env.MEDIA_GLOB],
+  });
+
+  const fuse = new Fuse(files.map(f => f.path));
+  const search = fuse.search(req.body.search).splice(0, 100);
+
+  const media = await Media.find({ file: search.map(s => s.item) });
+
+  const result = search.map(s => media.find(x => x.file === s.item) ?? { file: s.item });
+
+  return res.status(200).json(result);
 });
 
 // /api/streamer/stream/file stream a file from local fs
@@ -109,6 +112,11 @@ router.get("/meta", async (req, res) => {
     Media.createOrUpdate({ file: req.query.file }, meta);
     return res.status(200).json(meta);
   }
+});
+
+router.post("/meta", async (req, res) => {
+  const medias = await Media.find({ file: req.body });
+  return res.status(200).json(medias);
 });
 
 router.ws("/", (req, res) => {});

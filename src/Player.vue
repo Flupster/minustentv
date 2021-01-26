@@ -68,23 +68,18 @@
       </b-modal>
     </div>
 
-    <!-- fact display -->
-    <div v-if="!meta.isLive && fact" class="h-100">
+    <!-- motd display -->
+    <div v-if="!meta.isLive && motd" class="h-100">
       <b-container class="h-100">
         <b-row class="h-100 justify-content-center align-items-center text-center font-italic">
           <b-row>
-            <b-col md="12 mb-4">
-              <h1>{{ fact.on }}</h1>
-            </b-col>
-            <b-col md="12 mt-4">
-              <h3>{{ fact.description }}</h3>
+            <b-col md="12">
+              <h3>{{ motd.text }}</h3>
             </b-col>
           </b-row>
         </b-row>
       </b-container>
-      <div class="footer text-center text-muted">
-        Nothing is being streamed yet so you get a random event that happened on this day :)
-      </div>
+      <div class="footer text-center text-muted">Nothing is being streamed yet so you get a dad joke :)</div>
     </div>
 
     <!-- video -->
@@ -214,7 +209,7 @@ export default {
       ws: null,
       player: null,
       live: false,
-      fact: null,
+      motd: null,
       syncer: null,
       stretch: false,
       syncerSettings: {
@@ -238,7 +233,7 @@ export default {
       deep: true,
     },
     live(live, old) {
-      if (!live) this.getFact();
+      if (!live) this.getMotd();
     },
     meta: {
       handler(meta, oldMeta) {
@@ -249,9 +244,9 @@ export default {
     },
   },
   methods: {
-    getFact() {
-      axios.get("/api/facts").then(res => {
-        this.fact = res.data;
+    getMotd() {
+      axios.get("/api/motd").then(res => {
+        this.motd = res.data;
       });
     },
     play(src) {

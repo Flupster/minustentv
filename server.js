@@ -27,7 +27,7 @@ app.enable("trust proxy");
 app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(require("morgan")("combined"));
+//app.use(require("morgan")("combined"));
 app.use(express.static("dist"));
 app.use(express.static("public"));
 app.use(express.json({ limit: "1mb" }));
@@ -42,6 +42,5 @@ app.listen(5000, () => console.log("Webserver listening"));
 const discord = require("./discord");
 discord.on("ready", async () => {
   console.log("Discord bot logged in");
-  const guild = discord.guilds.cache.get(process.env.DISCORD_GUILD);
-  guild.members.fetch();
+  discord.guilds.fetch(process.env.DISCORD_GUILD);
 });

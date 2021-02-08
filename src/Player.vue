@@ -205,7 +205,7 @@ export default {
       noInteract: false,
       channel: "mtv",
       meta: {},
-      viewerButton: new ViewerButton(),
+      viewerButton: null,
       ws: null,
       player: null,
       live: false,
@@ -320,8 +320,8 @@ export default {
     });
 
     // Add ViewerButton and Amplifier to controlbar
-    this.player.controlBar.addChild(this.viewerButton, {}, 15);
-    this.player.controlBar.addChild(new AmplifierButton(this.player), {}, 2);
+    this.viewerButton = this.player.controlBar.addChild("ViewerCount", { click: this.seekToLive }, 15);
+    this.player.controlBar.addChild("Amplifier", {}, 2);
 
     // Remember volume
     this.player.on("volumechange", () => {
@@ -342,9 +342,6 @@ export default {
         this.player.isFullscreen() ? this.player.exitFullscreen() : this.player.requestFullscreen();
       }
     });
-
-    // On click of viewerButton seek to live edge
-    this.viewerButton.on("click", this.seekToLive);
 
     // If player is muted due to non interaction error unmute on click
     this.player.on("click", () => {

@@ -1,10 +1,10 @@
 import videojs from "video.js";
 import gradient from "gradient-color";
 
-const vjsButton = videojs.getComponent("Button");
-const amplifierComponent = videojs.extend(vjsButton, {
-  constructor(player) {
-    vjsButton.call(this);
+const Component = videojs.getComponent("Button");
+const amplifierComponent = videojs.extend(Component, {
+  constructor: function(player, options) {
+    Component.apply(this, arguments);
     this.player = player;
 
     this.amplifier;
@@ -58,4 +58,4 @@ const amplifierComponent = videojs.extend(vjsButton, {
   },
 });
 
-module.exports = amplifierComponent;
+videojs.registerComponent("Amplifier", amplifierComponent);

@@ -11,6 +11,8 @@ import App from "./App.vue";
 import Streamer from "./Streamer.vue";
 import Login from "./Login.vue";
 import Player from "./Player.vue";
+import StreamerCards from "./StreamerCards.vue";
+import Screen from "./Screen.vue";
 import History from "./History.vue";
 import NotFound from "./NotFound.vue";
 
@@ -36,7 +38,9 @@ const router = new VueRouter({
   routes: [
     { name: "Player", path: "/", component: Player },
     { name: "Login", path: "/login", component: Login },
+    { name: "streamer-cards", path: "/streamer-cards", component: StreamerCards },
     { name: "Streamer", path: "/streamer", component: Streamer },
+    { name: "screen", path: "/screen", component: Screen },
     { name: "History", path: "/history", component: History },
     { name: "NotFound", path: "*", component: NotFound },
   ],

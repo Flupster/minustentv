@@ -13,7 +13,6 @@
         <b-navbar-nav class="ml-auto">
           <!-- Inputs -->
           <b-nav-form v-on:submit.prevent v-on:keyup.enter="findMedia">
-            <b-button @click="streamDesktop" class="mr-4">Stream Desktop</b-button>
             <b-form-checkbox class="mr-4" v-model="notifyDiscord" switch>Notify Discord</b-form-checkbox>
             <b-form-checkbox class="mr-4" v-model="niceNames" switch>Nice Names</b-form-checkbox>
             <b-form-input
@@ -30,29 +29,27 @@
 
     <!-- Search Results -->
     <b-container class="mt-4" @paste="onPaste">
-      <b-row>
-        <b-col md="12">
-          <b-overlay :show="searchLoading" variant="dark" rounded="sm">
-            <b-list-group>
-              <b-list-group-item
-                v-for="result in searchResults"
-                v-b-modal.stream-modal
-                @click="stream.file = result.file"
-              >
-                <b-row>
-                  <b-col> {{ result.name }}</b-col>
-                  <b-col v-if="result.tmdb" sm="4" class="text-right">
-                    <span class="mr-2">
-                      <i class="fas fa-clock"></i> {{ Math.round(result.mediainfo.format.duration / 60) }} min
-                    </span>
-                    <span><i class="fas fa-star"></i> {{ result.tmdb.vote_average.toFixed(1) }}</span>
-                  </b-col>
-                </b-row>
-              </b-list-group-item>
-            </b-list-group>
-          </b-overlay>
-        </b-col>
-      </b-row>
+      <b-card-group columns>
+        <b-card
+          v-for="result in searchResults"
+          :img-src="poster(result.tmdb)"
+          img-top
+          v-b-modal.stream-modal
+          @click="stream.file = result.file"
+        >
+          <b-card-title class="text-center" title-tag="h5">{{ result.name }}</b-card-title>
+          <template v-slot:footer>
+            <b-row>
+              <b-col md="6" class="text-muted text-left">
+                <small><i class="fas fa-clock"></i> {{ Math.round(result.mediainfo.format.duration / 60) }} min</small>
+              </b-col>
+              <b-col v-if="result.tmdb" md="6" class="text-muted text-right">
+                <small><i class="fas fa-star"></i> {{ result.tmdb.vote_average.toFixed(1) }}</small>
+              </b-col>
+            </b-row>
+          </template>
+        </b-card>
+      </b-card-group>
     </b-container>
 
     <!-- Footer -->
@@ -257,6 +254,13 @@ export default {
     },
   },
   methods: {
+    poster(src) {
+      if (!src) return "https://via.placeholder.com/500x750/000000/FFFFFF/?text=Unknown";
+
+      return src.poster_path
+        ? `https://image.tmdb.org/t/p/w500${src.poster_path}`
+        : `https://via.placeholder.com/500x750/000000/FFFFFF/?text=${src.name || src.title || "?"}`;
+    },
     findMedia() {
       this.searchLoading = true;
       axios
@@ -402,25 +406,6 @@ export default {
         })
         .catch(e => toastr.error(e.response.data.error, "Stream error"));
     },
-    streamDesktop() {
-      const ws = new WebSocket("wss://minusten.tv/api/streamer/blob");
-
-      navigator.mediaDevices
-        .getDisplayMedia({
-          video: true,
-          audio: true,
-        })
-        .then(stream => {
-          stream.getVideoTracks()[0].addEventListener("ended", () => {
-            ws.close();
-            this.kill();
-          });
-
-          const recorder = new MediaRecorder(stream);
-          recorder.start(0);
-          recorder.ondataavailable = e => ws.send(e.data);
-        });
-    },
   },
   watch: {
     niceNames(value) {
@@ -452,13 +437,13 @@ export default {
     this.ws.onmessage = this.onMessage;
   },
   beforeMount() {
-    if (!this.$store.state.user) {
-      toastr.warning("Login or get the Patreon role to visit the streamer!", "Access denied");
-      this.$router.push({ name: "Player" });
-    }
+    // if (!this.$store.state.user) {
+    //   toastr.warning("Login or get the Patreon role to visit the streamer!", "Access denied");
+    //   this.$router.push({ name: "Player" });
+    // }
 
-    this.notifyDiscord = localStorage.getItem("notifyDiscord") == "true";
-    this.niceNames = localStorage.getItem("niceNames") == "true";
+    // this.notifyDiscord = localStorage.getItem("notifyDiscord") == "true";
+    // this.niceNames = localStorage.getItem("niceNames") == "true";
   },
 };
 </script>

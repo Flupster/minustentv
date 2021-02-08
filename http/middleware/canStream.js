@@ -1,12 +1,12 @@
-const discord = require("../discord");
+const discord = require("../../helpers/discord");
 
 // Middleware for discord users who can stream
-const canStream = async (req, res, next) => {
+const canStream = (req, res, next) => {
   if (!req.isAuthenticated()) {
     return res.status(400).json({ error: "User is not logged in" });
   }
 
-  const user = await discord.guilds.cache.get(process.env.DISCORD_GUILD).members.fetch(req.user.id);
+  const user = discord.guilds.cache.get(process.env.DISCORD_GUILD).member(req.user.id);
   if (!user) {
     return res.status(400).json({ error: "User is not in the discord guild" });
   }

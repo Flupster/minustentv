@@ -1,29 +1,35 @@
+const rrdir = require("rrdir");
+const Fuse = require("fuse.js");
 const axios = require("axios");
 const path = require("path");
-const StreamModel = require("../models/Stream");
-const KillModel = require("../models/Kill");
+const StreamModel = require("../../db/models/Stream");
+const KillModel = require("../../db/models/Kill");
 const YoutubeDlWrap = require("youtube-dl-wrap");
-const Stream = require("../helpers/stream");
-const Wss = require("../helpers/wss");
+const Stream = require("../../helpers/stream");
+const Wss = require("../wss");
 const Busboy = require("busboy");
 const router = require("express").Router();
 const canStream = require("../middleware/canStream");
-const Media = require("../models/Media");
-const Meta = require("../helpers/meta");
-const Webhook = require("../helpers/webhook");
-const websocketStream = require("websocket-stream/stream");
-const Searcher = require("../helpers/searcher");
+const Media = require("../../db/models/Media");
+const Meta = require("../../helpers/meta");
+const Webhook = require("../../helpers/webhook");
 
 //attach canStream middleware for verified user access
 router.use(canStream);
 
 // /api/streamer/search search for files
 router.post("/search", async (req, res) => {
-  const search = Searcher.search(req.body.search);
+  const files = await rrdir.async(process.env.MEDIA_DIR, {
+    exclude: ["**/.*"],
+    include: [process.env.MEDIA_GLOB],
+  });
 
-  const media = await Media.find({ file: search });
+  const fuse = new Fuse(files.map(f => f.path));
+  const search = fuse.search(req.body.search).splice(0, 100);
 
-  const result = search.map(file => media.find(x => x.file === file) ?? { file });
+  const media = await Media.find({ file: search.map(s => s.item) });
+
+  const result = search.map(s => media.find(x => x.file === s.item) ?? { file: s.item });
 
   return res.status(200).json(result);
 });
@@ -111,21 +117,6 @@ router.get("/meta", async (req, res) => {
 router.post("/meta", async (req, res) => {
   const medias = await Media.find({ file: req.body });
   return res.status(200).json(medias);
-});
-
-router.ws("/blob", (ws, req) => {
-  const stream = websocketStream(ws, {
-    binary: true,
-  });
-  new Stream(stream)
-    .on("error", error => {
-      Wss.sendJsonPath("/api/streamer", {
-        event: "error",
-        data: error.message,
-      });
-    })
-    .on("stderr", data => console.log(data))
-    .run();
 });
 
 router.ws("/", (req, res) => {});

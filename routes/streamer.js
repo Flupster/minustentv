@@ -13,6 +13,7 @@ const canStream = require("../middleware/canStream");
 const Media = require("../models/Media");
 const Meta = require("../helpers/meta");
 const Webhook = require("../helpers/webhook");
+const websocketStream = require("websocket-stream/stream");
 
 //attach canStream middleware for verified user access
 router.use(canStream);
@@ -117,6 +118,21 @@ router.get("/meta", async (req, res) => {
 router.post("/meta", async (req, res) => {
   const medias = await Media.find({ file: req.body });
   return res.status(200).json(medias);
+});
+
+router.ws("/blob", (ws, req) => {
+  const stream = websocketStream(ws, {
+    binary: true,
+  });
+  new Stream(stream)
+    .on("error", error => {
+      Wss.sendJsonPath("/api/streamer", {
+        event: "error",
+        data: error.message,
+      });
+    })
+    .on("stderr", data => console.log(data))
+    .run();
 });
 
 router.ws("/", (req, res) => {});

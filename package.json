@@ -59,7 +59,7 @@
     "vue-router": "^3.5.1",
     "vuex": "^3.6.2",
     "websocket-stream": "^5.5.2",
-    "ws": "^7.4.3",
+    "ws": "^7.4.6",
     "youtube-dl": "^3.1.0",
     "youtube-dl-wrap": "^2.0.0"
   },

@@ -214,7 +214,7 @@ export default {
       stretch: false,
       syncerSettings: {
         intensity: 30,
-        enabled: true,
+        enabled: false,
       },
     };
   },
@@ -226,7 +226,7 @@ export default {
     },
     syncerSettings: {
       handler(settings, old) {
-        localStorage.setItem("syncer-settings", JSON.stringify(settings));
+        localStorage.setItem("syncer-settings-2", JSON.stringify(settings));
         this.syncer.intensity = settings.intensity;
         settings.enabled ? this.syncer.enable() : this.syncer.disable();
       },
@@ -362,7 +362,7 @@ export default {
 
     // Attach Syncers
     this.syncer = new Syncer(this.player);
-    this.syncerSettings = JSON.parse(localStorage.getItem("syncer-settings") ?? JSON.stringify(this.syncerSettings));
+    this.syncerSettings = JSON.parse(localStorage.getItem("syncer-settings-2") ?? JSON.stringify(this.syncerSettings));
 
     // Load default video stretch
     this.stretch = localStorage.getItem("stretch-video") === "true";

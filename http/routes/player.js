@@ -6,10 +6,6 @@ router.ws("/*", (ws, req) => {
   // Send a ping every 10s
   setInterval(() => ws.event("ping", +new Date()), 10000);
 
-  ws.on("message", message => {
-    console.log(req.ip, message);
-  });
-
   const events = ["streamStart", "streamInfo", "streamEnd"];
 
   events.forEach(event => {

@@ -13,7 +13,7 @@ const Media = new mongoose.Schema(
   { timestamps: true }
 );
 
-Media.statics.findByFile = async function(file) {
+Media.statics.findByFile = async function (file) {
   const stat = fs.statSync(file);
   const doc = await this.findOne({ file });
 
@@ -21,16 +21,16 @@ Media.statics.findByFile = async function(file) {
   else return doc;
 };
 
-Media.methods.hasChanged = async function() {
+Media.methods.hasChanged = async function () {
   const stat = fs.statSync(this.file);
   return this.modified.getTime() !== stat.mtime.getTime();
 };
 
-Media.methods.isMovie = function() {
+Media.methods.isMovie = function () {
   return this.scene.type === "movie";
 };
 
-Media.methods.isTvShow = function() {
+Media.methods.isTvShow = function () {
   return this.scene.type === "tvshow";
 };
 

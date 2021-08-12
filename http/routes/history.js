@@ -1,30 +1,18 @@
 const router = require("express").Router();
 const Stream = require("../../db/models/Stream");
+const Cache = require("../../cache");
 
 const canStream = require("../middleware/canStream");
-const Kill = require("../../db/models/Kill");
-const discord = require("../../helpers/discord");
-const Movie = require("../../db/models/Movie");
-const MovieVote = require("../../db/models/MovieVote");
-const tmdb = require("../../helpers/tmdb");
 
 //attach canStream middleware for verified user access
-router.use(canStream);
+// router.use(canStream);
 
 // @route /api/history
 router.get("/stream", async (req, res) => {
-  const streams = await Stream.find({});
-  const result = streams.reverse().map(stream => ({
-    user: discord.users.cache.get(stream.discordId)?.username,
-    ...stream._doc,
-  }));
+  const cached = await Cache.get('history:stream');
+  if (cached) return res.status(200).json(JSON.parse(cached));
 
-  return res.status(200).json(result);
-});
-
-// @route /api/kill
-router.get("/kill", async (req, res) => {
-  const query = Kill.aggregate([
+  const query = Stream.aggregate([
     {
       $lookup: { from: "users", localField: "discordId", foreignField: "id", as: "user" },
     },
@@ -32,10 +20,22 @@ router.get("/kill", async (req, res) => {
       $unwind: { path: "$user" },
     },
     {
+      $lookup: { from: "media", localField: "inputSource", foreignField: "file", as: "meta" }
+    },
+    {
+      $unwind: { path: "$meta" },
+    },
+    {
       $group: {
         _id: "$_id",
         user: { $first: "$user.username" },
+        discordAvatar: { $first: "$user.avatar" },
+        discordId: { $first: "$user.id" },
         date: { $first: "$date" },
+        source: { $first: "$inputSource" },
+        type: { $first: "$inputType" },
+        meta: { $first: "$meta.tmdb" },
+        scene: { $first: "$meta.scene" },
       },
     },
     { $sort: { date: -1 } },
@@ -43,23 +43,11 @@ router.get("/kill", async (req, res) => {
 
   query
     .exec()
-    .then(streams => res.status(200).json(streams))
+    .then(streams => {
+      Cache.set('history:stream', JSON.stringify(streams));
+      return res.status(200).json(streams)
+    })
     .catch(error => res.status(500).json({ error }));
-});
-
-// @route /api/vote
-router.get("/vote", async (req, res) => {
-  const _votes = await MovieVote.find({});
-  const _movies = await Movie.find({ id: _votes.map(v => v.movieId) });
-
-  const votes = _votes.reverse().map(v => ({
-    user: discord.users.cache.get(v.discordId)?.username,
-    movie: _movies.find(m => m.id === v.movieId)?.title,
-    vote: v.vote,
-    date: v.updatedAt,
-  }));
-
-  return res.status(200).json(votes);
 });
 
 module.exports = router;

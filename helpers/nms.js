@@ -1,5 +1,5 @@
 const Emitter = require("events");
-const Event = require("../models/Event");
+const Event = require("../db/models/Event");
 const axios = require("axios");
 
 class Nms extends Emitter {
@@ -47,7 +47,9 @@ class Nms extends Emitter {
   }
 
   async getStreamInfo(channel) {
-    const req = await axios.get(process.env.NMS_URL + "api/streams/live/" + channel);
+    const req = await axios.get(
+      process.env.NMS_URL + "api/streams/live/" + channel
+    );
     this.channels[channel] = req.data;
     this.emit("streamInfo", { channel, meta: req.data });
     return req.data;

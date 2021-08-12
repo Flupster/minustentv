@@ -3,8 +3,8 @@ const oleoo = require("oleoo");
 const ffmpeg = require("fluent-ffmpeg");
 const axios = require("axios");
 const path = require("path");
-const Movie = require("../models/Movie");
-const TvShow = require("../models/TvShow");
+const Movie = require("../db/models/Movie");
+const TvShow = require("../db/models/TvShow");
 
 const TmdbInstance = axios.create({
   baseURL: "https://api.themoviedb.org/3/",

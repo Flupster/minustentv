@@ -1,8 +1,10 @@
 const Session = require("express-session");
-const MongoStore = require("connect-mongo")(Session);
-const mongoose = require("../db");
+const MongoDBStore = require("connect-mongodb-session")(Session);
 
-const store = new MongoStore({ mongooseConnection: mongoose.connection });
+const store = new MongoDBStore({
+  uri: process.env.DB_CONNECT,
+  collection: "sessions",
+});
 
 const session = Session({
   name: "sid",
@@ -13,6 +15,6 @@ const session = Session({
   saveUninitialized: true,
 });
 
-store.on("error", e => console.error("store error", e));
+store.on("error", (e) => console.error("store error", e));
 
 module.exports = session;

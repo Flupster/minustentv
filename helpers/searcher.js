@@ -1,6 +1,6 @@
 const Fuse = require("fuse.js");
 const chokidar = require("chokidar");
-const Media = require("../models/Media");
+const Media = require("../db/models/Media");
 const Meta = require("./meta");
 
 class Searcher {

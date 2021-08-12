@@ -79,7 +79,7 @@
           </b-row>
         </b-row>
       </b-container>
-      <div class="footer text-center text-muted">Nothing is being streamed yet so you get a dad joke :)</div>
+      <div class="footer text-center text-muted">You can add jokes in discord with /joke add THE_JOKE</div>
     </div>
 
     <!-- video -->
@@ -245,7 +245,7 @@ export default {
   },
   methods: {
     getMotd() {
-      axios.get("/api/motd").then(res => {
+      axios.get("/api/jokes/motd").then(res => {
         this.motd = res.data;
       });
     },

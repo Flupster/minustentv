@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Cache = require('../../cache');
 
 const Stream = new mongoose.Schema(
   {
@@ -9,5 +10,10 @@ const Stream = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+
+Stream.post('save', async () => {
+  await Cache.del('history:stream');
+});
 
 module.exports = mongoose.model("Stream", Stream);

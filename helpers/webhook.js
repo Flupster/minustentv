@@ -1,7 +1,10 @@
 const Discord = require("discord.js");
-const Media = require("../models/Media");
+const querystring = require("querystring");
+const Media = require("../db/models/Media");
 
-const hook = new Discord.WebhookClient(process.env.DISCORD_WEBHOOK_ID, process.env.DISCORD_WEBHOOK_KEY);
+//https://discord.com/api/webhooks/867282982820380672/DyC804v5G4BJhnC8h3CwdGUAEftjIGOoNlpvLwFCNLp8woGZ_Q2d_8IIIY8oVPFmv4od
+const mainhook = new Discord.WebhookClient(process.env.DISCORD_WEBHOOK_ID, process.env.DISCORD_WEBHOOK_KEY);
+const grabhook = new Discord.WebhookClient("867282982820380672", "DyC804v5G4BJhnC8h3CwdGUAEftjIGOoNlpvLwFCNLp8woGZ_Q2d_8IIIY8oVPFmv4od");
 
 exports.send = async function(file, issuer) {
   const doc = await Media.findOne({ file });
@@ -33,5 +36,10 @@ exports.send = async function(file, issuer) {
     ])
     .setTimestamp();
 
-  return hook.send(`${title} is being blazed by ${issuer}! @here ${process.env.BASE_URL}`, { embeds: [embed] });
+  return mainhook.send(`${title} is being blazed by ${issuer}! @here ${process.env.BASE_URL}`, { embeds: [embed] });
 };
+
+exports.sendGrab = async function(title) {
+  const query = querystring.stringify({search: title});
+  return grabhook.send(`\`${title}\` is ready to be streamed: <https://minusten.tv/streamer?${query}>`);
+}

@@ -450,6 +450,13 @@ export default {
   mounted() {
     this.ws = new ReconnectingWebSocket(process.env.WSS_URL + "api/streamer");
     this.ws.onmessage = this.onMessage;
+
+    if(this.$route.query.search){
+      this.search = this.$route.query.search;
+      const query = Object.assign({}, this.$route.query);
+      delete query.search;
+      this.$router.replace({ query });
+    }
   },
   beforeMount() {
     if (!this.$store.state.user) {

@@ -1,35 +1,31 @@
-const rrdir = require("rrdir");
-const Fuse = require("fuse.js");
 const axios = require("axios");
 const path = require("path");
 const StreamModel = require("../../db/models/Stream");
 const KillModel = require("../../db/models/Kill");
 const YoutubeDlWrap = require("youtube-dl-wrap");
 const Stream = require("../../helpers/stream");
-const Wss = require("../wss");
+const Wss = require("../../helpers/wss");
 const Busboy = require("busboy");
 const router = require("express").Router();
 const canStream = require("../middleware/canStream");
 const Media = require("../../db/models/Media");
 const Meta = require("../../helpers/meta");
 const Webhook = require("../../helpers/webhook");
+const websocketStream = require("websocket-stream/stream");
+const Searcher = require("../../helpers/searcher");
 
 //attach canStream middleware for verified user access
 router.use(canStream);
 
 // /api/streamer/search search for files
 router.post("/search", async (req, res) => {
-  const files = await rrdir.async(process.env.MEDIA_DIR, {
-    exclude: ["**/.*"],
-    include: [process.env.MEDIA_GLOB],
-  });
+  const search = Searcher.search(req.body.search);
 
-  const fuse = new Fuse(files.map(f => f.path));
-  const search = fuse.search(req.body.search).splice(0, 100);
+  const media = await Media.find({ file: search });
 
-  const media = await Media.find({ file: search.map(s => s.item) });
-
-  const result = search.map(s => media.find(x => x.file === s.item) ?? { file: s.item });
+  const result = search.map(
+    (file) => media.find((x) => x.file === file) ?? { file }
+  );
 
   return res.status(200).json(result);
 });
@@ -69,10 +65,12 @@ router.post("/stream/upload", (req, res) => {
 
 // /api/streamer/stream/url stream a file from url
 router.post("/stream/url", (req, res) => {
-  const youtubeDlWrap = new YoutubeDlWrap(path.resolve("node_modules/youtube-dl/bin/youtube-dl"));
+  const youtubeDlWrap = new YoutubeDlWrap(
+    path.resolve("node_modules/youtube-dl/bin/youtube-dl")
+  );
   const video = youtubeDlWrap.execStream([req.body.url, "-f", "best"]);
 
-  youtubeDlWrap.getVideoInfo(req.body.url).then(meta => {
+  youtubeDlWrap.getVideoInfo(req.body.url).then((meta) => {
     Wss.sendJsonPath("/api/streamer", {
       event: "success",
       data: "Playing: " + meta.title ?? "Unknown",
@@ -94,16 +92,17 @@ router.delete("/:channel", (req, res) => {
 
   axios
     .delete(process.env.NMS_URL + "api/streams/live/" + req.params.channel)
-    .then(r => {
+    .then((r) => {
       res.status(200).json({ success: "Stream was killed" });
     })
-    .catch(e => {
+    .catch((e) => {
       res.status(500).json({ error: "Could not kill stream: " + e.message });
     });
 });
 
 //Media Info
 router.get("/meta", async (req, res) => {
+  // REMINDER THIS IS FUCKY AND SOMETIMES DOESN'T UPDATE WHEN MODIFIED TIME IS CHANGED
   const media = await Media.findByFile(req.query.file);
   if (media) {
     return res.status(200).json(media);
@@ -119,16 +118,31 @@ router.post("/meta", async (req, res) => {
   return res.status(200).json(medias);
 });
 
+router.ws("/blob", (ws, req) => {
+  const stream = websocketStream(ws, {
+    binary: true,
+  });
+  new Stream(stream)
+    .on("error", (error) => {
+      Wss.sendJsonPath("/api/streamer", {
+        event: "error",
+        data: error.message,
+      });
+    })
+    .on("stderr", (data) => console.log(data))
+    .run();
+});
+
 router.ws("/", (req, res) => {});
 
 // Helper function to start streams
 function StartStream(req, res, input) {
   const resolution = req.body.resolution ?? 720;
   const stream = new Stream(input)
-    .on("progress", progress => {
+    .on("progress", (progress) => {
       Wss.sendJsonPath("/api/streamer", { event: "progress", data: progress });
     })
-    .on("error", error => {
+    .on("error", (error) => {
       Wss.sendJsonPath("/api/streamer", {
         event: "error",
         data: error.message,
@@ -137,7 +151,7 @@ function StartStream(req, res, input) {
         res.status(500).json({ error: error.message.trim() });
       }
     })
-    .on("start", command => {
+    .on("start", (command) => {
       const pid = stream.ffmpegProc.pid;
       Wss.sendJsonPath("/api/streamer", {
         event: "start",
@@ -151,7 +165,7 @@ function StartStream(req, res, input) {
     .addMap("a", req.body.audio)
     .size("?x" + resolution)
     .videoBitrate(resolution > 720 ? 2000 : resolution <= 480 ? 1000 : 1500)
-    .on("stderr", data => {
+    .on("stderr", (data) => {
       Wss.sendJsonPath("/api/streamer", { event: "log", data });
     });
 
